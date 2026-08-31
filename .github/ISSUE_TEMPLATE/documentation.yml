@@ -1,0 +1,27 @@
+name: Documentation change
+description: Propose a documentation or specification change.
+title: "docs: "
+labels:
+  - documentation
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: Describe the documentation outcome and intended reader.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Identify the files or areas affected and what is out of scope.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: List observable criteria that make this change complete.
+    validations:
+      required: true

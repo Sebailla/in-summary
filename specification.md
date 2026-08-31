@@ -5,12 +5,13 @@
 **Language / Tooling:** Swift 5.10 / Swift 6, Xcode 15 / 16
 **Document Status:** Canonical specification — supersedes `especifications.md` and `especifications-2.md`
 **Audience:** Reviewers, future contributors, and the implementing engineer
+**Product decision (v1):** local-first; no Apple Developer Program membership required. Cross-device sync via iCloud/CloudKit and binary upload (`CKAsset`) are explicitly deferred to a future phase.
 
 ---
 
 ## Decision Summary
 
-In-Summary is a personal, library-based reading and study environment for iPad. It imports documents in **PDF**, **EPUB**, and **Markdown**, paginates them horizontally or vertically according to the reader's choice, supports two annotation modes (semantic text highlights and freeform Apple Pencil ink), overlays persistent floating sticky notes, and syncs annotation metadata through a private CloudKit database. The interface adopts the iOS 26 Liquid Glass visual language, adapted for iPadOS. Original document binaries remain on the device that imported them; metadata and annotations travel through iCloud.
+In-Summary is a personal, library-based reading and study environment for iPad. It imports documents in **PDF**, **EPUB**, and **Markdown**, paginates them horizontally or vertically according to the reader's choice, supports two annotation modes (semantic text highlights and freeform Apple Pencil ink), and overlays persistent floating sticky notes. The interface adopts the iOS 26 Liquid Glass visual language, adapted for iPadOS. Original files and metadata live exclusively in the sandbox of the device that imported them; v1 makes no network calls of any kind. Cross-device sync and remote book availability are deferred to a future phase.
 
 | Area | Decision |
 | --- | --- |
@@ -18,26 +19,29 @@ In-Summary is a personal, library-based reading and study environment for iPad. 
 | Pagination | Horizontal or vertical, chosen by the reader and persisted per document |
 | Visual design | iOS 26 Liquid Glass, adapted for iPadOS and respecting accessibility and contrast |
 | Annotation layers | Four z-ordered layers (semantic highlights → PencilKit ink → sticky notes → UI overlays) |
-| Persistence | SwiftData `@Model` entities with a private CloudKit database; local binaries, optional assets |
+| Persistence | **Local** SwiftData `ModelContainer`; no active iCloud/CloudKit capabilities in v1. Sync is deferred to a future phase |
+| SwiftData schema | CloudKit-compatible by design (no unique attributes, all relationships optional or defaulted), to reduce the cost of the future sync phase |
 | Uniqueness | No `@Attribute(.unique)`; uniqueness enforced at the application layer on import |
 | EPUB security | Sandboxed unzip with path-traversal guard, allowlisted content types, `WKWebView` isolated per document |
 | Performance | No absolute FPS, latency, or RAM targets; manual smoothness verification on real hardware |
 
-**What is in scope (v1):** reading, paginating, annotating, sticky-noting, organizing in folders, exporting PDF with burned-in marks and a Markdown notes summary, and syncing annotations across the user's own iCloud devices.
+**What is in scope (v1):** reading, paginating, annotating, sticky-noting, organizing in folders, exporting PDF with burned-in marks and a Markdown notes summary — all 100% local and server-less.
 
-**What is out of scope (v1):** collaborative editing, sharing books or notes with other users, server-side rendering, AI features, audio/video playback, format conversion (e.g., EPUB → PDF), DRM-protected content, non-iPad form factors.
+**What is out of scope (v1):** collaborative editing, sharing books or notes with other users, cross-device sync (iCloud/CloudKit), uploading or downloading binaries as `CKAsset`, "Make available on my other devices", any backend, third-party analytics, payment SDKs, server-side rendering, AI features, audio/video playback, format conversion (e.g., EPUB → PDF), DRM-protected content, non-iPad form factors.
+
+**Deferred to a future phase (not v1):** syncing annotations and metadata across the user's own devices through a private CloudKit database; opt-in upload of the book binary as a `CKAsset`; cross-device download; cloud revocation. The design is preserved here for forward compatibility, but **none** of these behaviors ship in v1.
 
 **Resolved contradictions (this section replaces earlier drafts):**
 
-1. **CloudKit does not distribute sandboxed files.** CloudKit syncs SwiftData records only. Original documents remain in the importing device's sandbox. To make a book available on another device, the user explicitly opts in to uploading its binary as a CloudKit asset (stored as `CKAsset` on `DocumentItem.contentCKAsset`). Until that asset arrives on a device, the library entry shows "not downloaded" and the reader refuses to open it. This avoids silently broken libraries and prevents heavy assets from being auto-pushed without consent.
+1. **Cross-device availability is deferred.** In v1, binaries and metadata are exclusively local. When the future sync phase lands, CloudKit will sync SwiftData records only; original documents will remain in the importing device's sandbox. Until then, the library shows no remote or "not downloaded" states. This avoids silently broken libraries and keeps v1's surface minimal.
 2. **Reflowable content cannot use `pageIndex` as a stable locator.** Markdown and EPUB re-flow with the viewport and font size, which makes page numbers unstable. Stable locators are:
    - **PDF** → `(pageIndex, normalizedQuads: [CGRect])` in PDF document space.
    - **Markdown** → `NSRange(location, length)` plus a `contentHash` for invalidation when the source changes.
    - **EPUB** → an EPUB 3 **CFI** (Canonical Fragment Identifier) string, falling back to DOM Range serialization if CFI generation fails.
    `pageIndex` is retained only as a **display hint** and as a navigation pointer; the canonical anchor for highlights is format-specific.
 3. **Annotation coordinate spaces are explicit and per-layer.** See §3.4.
-4. **SwiftData uniqueness is enforced at the application layer**, not via `@Attribute(.unique)`, because CloudKit-compatible schemas forbid unique constraints. See §3.5.
-5. **Conflict resolution is last-writer-wins per record** with `updatedAt` tiebreaker. Byte-level PencilKit merges are explicitly out of scope; users see a "two versions" prompt only when both devices edited the same `TextHighlight` text anchor within the CloudKit quota window.
+4. **SwiftData uniqueness is enforced at the application layer**, not via `@Attribute(.unique)`. Beyond producing clearer error messages, this keeps the schema CloudKit-compatible by design so the future sync phase does not require entity rewrites. See §3.5.
+5. **Cross-device conflict resolution is deferred.** v1 has no sync, so there are no cross-device conflict scenarios. SwiftData's local semantics (write order on the same device) apply as-is. When sync is reactivated, the planned rule is **last-writer-wins per record** with `updatedAt` tiebreaker; byte-level PencilKit merges remain explicitly out of scope.
 6. **No absolute performance guarantees.** Earlier drafts claimed 120 FPS, sub-9 ms latency, and memory ceilings. These are removed and replaced with qualitative verification steps on real hardware with Instruments.
 
 ---
@@ -47,7 +51,7 @@ In-Summary is a personal, library-based reading and study environment for iPad. 
 1. Read §1 (Scope) and §2 (Architecture) for orientation — 5 minutes.
 2. Skim the tables in §3 (Data Model) and §4 (Format Engines) — 10 minutes.
 3. Validate §6 (Phased Delivery) acceptance criteria against the test strategy in §7.
-4. Verify nothing in §9 (Non-Goals) is silently being implemented.
+4. Verify nothing in §9 (Non-Goals) is silently being implemented, and everything labelled "deferred" stays labelled that way and is absent from v1 product code.
 
 ---
 
@@ -64,13 +68,15 @@ A library-based iPad application that lets a single user:
 - Organize documents into user-created folders.
 - Resume reading at the last locator per document.
 - Export a PDF with burned-in ink and highlights, plus a Markdown summary of all annotations for the document.
-- Sync annotations and metadata (not the original binaries, unless explicitly opted in) across the user's own iCloud devices.
+
+**No server, no Apple Developer account, and no network dependency.** All content and all metadata live in the local sandbox of the device that imported the files.
 
 ### 1.2 Constraints
 
 - **Platform:** iPadOS 26.0+ only. No iPhone, no Mac Catalyst, no visionOS.
 - **Interface:** use the iOS 26 Liquid Glass visual system, adapted for iPadOS; translucent effects must not reduce legibility, contrast, or VoiceOver compatibility.
-- **Connectivity:** reading, annotations, and library organization work fully offline. CloudKit sync is opportunistic and best-effort.
+- **Connectivity:** v1 is designed to work **fully offline** and **without active iCloud/CloudKit capabilities**. No network calls are made to Apple or to any third party.
+- **Apple Developer Program membership:** not required for v1; iCloud, CloudKit, push notifications, and distribution-signing capabilities are disabled.
 - **No third-party services:** no custom servers, no analytics SDKs, no payment SDKs.
 - **No DRM circumvention:** the app does not bypass store or publisher DRM.
 
@@ -78,12 +84,15 @@ A library-based iPad application that lets a single user:
 
 | Non-goal | Why it is excluded |
 | --- | --- |
-| Sharing books with other users | CloudKit private DB is single-user; sharing requires a different storage model |
+| Sharing books with other users | v1 is single-user and local; sharing requires a different storage model |
 | Collaborative annotations | Same as above; out of scope until sharing is introduced |
 | Format conversion (EPUB→PDF, etc.) | Adds significant complexity and ownership/licensing risk |
 | Audio / video playback | Reader engines are text-first |
 | AI summarization / OCR | Not in v1; hooks can be added later without schema breakage |
-| Cloud-based book storage by default | Privacy, storage cost, and accidental data exposure; opt-in only |
+| Cross-device sync (iCloud/CloudKit) | Deferred to a future phase; v1 is local-first and requires no Apple Developer Program membership |
+| Uploading or downloading binaries as `CKAsset` | Deferred with sync; depends on CloudKit |
+| Cross-device book availability ("Make available on my other devices") | Deferred with sync |
+| Custom backend, manual restore, or remote backup | Not claimed; v1 implements no remote backup path |
 | Windows/macOS targets | Reduces PencilKit and multi-window testing surface to a known target |
 
 ---
@@ -102,28 +111,28 @@ A library-based iPad application that lets a single user:
 │                                   ▼                                        │
 │                          Reader ViewModels                                 │
 └─────────────────────────────────┬──────────────────────────────────────────┘
-                                      │
+                                          │
 ┌─────────────────────────────────▼──────────────────────────────────────────┐
 │                            DOMAIN LAYER                                    │
 │  ┌─────────────┐  ┌─────────────┐  ┌──────────────┐  ┌──────────────────┐  │
 │  │ PDF Engine  │  │ MD Engine   │  │ EPUB Engine  │  │ Annotation Eng.  │  │
 │  └─────────────┘  └─────────────┘  └──────────────┘  └──────────────────┘  │
 │            ┌─────────────────────────────────────────────────────┐        │
-│            │ Sync Monitor + EPUB Security + File Availability    │        │
+│            │ EPUB Security + Availability (deferred)             │        │
 │            └─────────────────────────────────────────────────────┘        │
 └─────────────────────────────────┬──────────────────────────────────────────┘
-                                      │
+                                          │
 ┌─────────────────────────────────▼──────────────────────────────────────────┐
 │                       DATA & PERSISTENCE LAYER                             │
 │  ┌─────────────────────────────────────────────────────────────────────┐  │
-│  │              SwiftData ModelContainer (CloudKit-private)            │  │
+│  │            SwiftData ModelContainer LOCAL (no CloudKit)             │  │
 │  │  FolderEntity ─< DocumentItem ─< PageAnnotation ─< {TextHighlight,  │  │
 │  │                                                       StickyNote}   │  │
 │  └─────────────────────────────────────────────────────────────────────┘  │
-│           │                                            │                   │
-│           ▼                                            ▼                   │
-│   Application Support/Documents/<UUID>.<ext>    CloudKit Private DB        │
-│   (original binaries, device-local)             (metadata + opt-in assets) │
+│           │                                                                │
+│           ▼                                                                │
+│   Application Support/Documents/<UUID>.<ext>                               │
+│   (original binaries, exclusively local)                                    │
 └────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -131,9 +140,9 @@ A library-based iPad application that lets a single user:
 
 | Module | Responsibility | Key types |
 | --- | --- | --- |
-| `App/` | App entry point, DI, capabilities wiring | `UniversalReaderApp`, `DependencyContainer` |
-| `Models/` | SwiftData entities | `FolderEntity`, `DocumentItem`, `PageAnnotation`, `TextHighlight`, `StickyNoteEntity` |
-| `Services/Storage/` | Sandbox file I/O, thumbnail cache, sync monitor | `FileStorageService`, `ThumbnailCache`, `CloudSyncMonitor` |
+| `App/` | App entry point, DI, capabilities wiring (no iCloud/CloudKit in v1) | `UniversalReaderApp`, `DependencyContainer` |
+| `Models/` | SwiftData entities (local schema in v1; CloudKit-compatible by design) | `FolderEntity`, `DocumentItem`, `PageAnnotation`, `TextHighlight`, `StickyNoteEntity` |
+| `Services/Storage/` | Sandbox file I/O and thumbnail cache; no active sync monitor in v1 | `FileStorageService`, `ThumbnailCache` |
 | `Services/PDFEngine/` | PDFKit wrapper, coordinate conversion | `PDFReaderCoordinator`, `PDFCoordinateConverter` |
 | `Services/MarkdownEngine/` | Markdown parse + paginate | `MarkdownParser`, `MarkdownPaginator` |
 | `Services/EPUBEngine/` | EPUB unzip, OPF parse, JS bridge | `EPUBUnarchiver`, `EPUBManifestParser`, `EPUBBridgeScript.js` |
@@ -145,6 +154,8 @@ A library-based iPad application that lets a single user:
 | `Views/Components/` | Reusable UI | `CustomToolBar`, `ColorPalettePicker` |
 | `Resources/` | Embedded fonts, assets | `Caveat-Regular.ttf`, `Assets.xcassets` |
 
+> **Deferred (future phase):** `Services/Storage/CloudSyncMonitor` will be introduced when sync is reactivated. In v1 it does not exist, is not initialized, and its absence must not be modeled as a pending "no network" state.
+
 ### 2.3 Sandbox layout
 
 | Path | Purpose | Synced? |
@@ -152,8 +163,8 @@ A library-based iPad application that lets a single user:
 | `Application Support/Documents/<UUID>.<ext>` | Imported original binaries | No (device-local) |
 | `Application Support/Thumbnails/<UUID>.png` | Library cover thumbnails | No |
 | `Caches/<UUID>/` | EPUB-extracted HTML/CSS/images | No (regenerable) |
-| SwiftData store (system location) | All entities below | Yes, via CloudKit private DB |
-| CloudKit `CKAsset` on `DocumentItem.contentCKAsset` | Opt-in book-binary sync | Yes, only when user uploads |
+| SwiftData store (system location) | All entities below | **No** (local in v1; sync deferred) |
+| CloudKit `CKAsset` on `DocumentItem.contentCKAsset` | Opt-in book-binary sync | **Deferred**; the field is reserved in the schema but unused in v1 |
 
 ---
 
@@ -161,7 +172,7 @@ A library-based iPad application that lets a single user:
 
 ### 3.1 Canonical entities (authoritative SwiftData schema)
 
-These names and field names are the source of truth. Earlier drafts used mixed names (e.g., `rotationDegrees` vs. `rotationAngle`, `fileTypeRaw` vs. absent `fileExtension`); the canonical names are used everywhere below.
+These names and field names are the source of truth. The schema is **CloudKit-compatible by design** (no unique attributes, all relationships optional or defaulted) so the future sync phase does not require entity rewrites. **No entity is connected to a CloudKit database in v1.**
 
 ```swift
 @Model final class FolderEntity {
@@ -188,8 +199,9 @@ These names and field names are the source of truth. Earlier drafts used mixed n
     var createdAt: Date = Date()
     var updatedAt: Date = Date()
 
-    // Cross-device book availability (Phase 2+). When nil, the document
-    // is unavailable on this device.
+    // DEFERRED (future sync phase). Reserved in the schema so that
+    // introducing opt-in binary upload as a CKAsset does not force a
+    // migration. Stays nil and unused in v1.
     @Attribute(.externalStorage)
     var contentCKAsset: Data? = nil
 
@@ -250,8 +262,8 @@ These names and field names are the source of truth. Earlier drafts used mixed n
 | `rotationDegrees` | `rotationAngle` | Consistency with code in `especifications-2.md` |
 | `fileTypeRaw` only | `fileTypeRaw` + `fileExtension` | `fileExtension` makes export logic simpler |
 | `lastReadPageIndex` only | `lastReadLocator: Data` + `lastReadPageIndex` (display hint) | Stable locators cannot be reduced to a page index |
-| absent `contentHash` | `contentHash` on `DocumentItem` | Detect content drift across devices |
-| absent `updatedAt` on highlight/note | `updatedAt` on `TextHighlight` and `StickyNoteEntity` | Required for LWW conflict resolution |
+| absent `contentHash` | `contentHash` on `DocumentItem` | Detect local content drift between devices (foundation when sync reactivates) |
+| absent `updatedAt` on highlight/note | `updatedAt` on `TextHighlight` and `StickyNoteEntity` | Required for LWW conflict resolution when sync reactivates |
 | `colorThemeRaw` | `colorTheme` | Consistency |
 | `anchorData` | `anchorPayload` + `anchorFormatRaw` | Format discriminator must be explicit |
 
@@ -287,21 +299,23 @@ Validation rules on load:
 | Invariant | Where enforced | Reason |
 | --- | --- | --- |
 | `DocumentItem.localFileName` is unique in the app's sandbox | `FileStorageService.importDocument(_:)` generates `<UUID>.<ext>` and rejects collisions | UUID-based naming gives uniqueness by construction |
-| `DocumentItem.id` is unique across all devices | UUID, set at insert | Required by CloudKit |
-| `DocumentItem.contentHash` matches the on-disk file bytes | Recomputed at import time | Drift detection |
+| `DocumentItem.id` is unique per app (UUID set at insert) | Generated by SwiftData on insert | Stable identification; preserves the path to future cross-device sync |
+| `DocumentItem.contentHash` matches the on-disk file bytes | Recomputed at import time | Local drift detection |
 | `(documentId, anchorFormatRaw, anchorPayloadHash)` is unique per app | Insertion guard in the model context | Prevents duplicates from LWW replays |
 
-**No `@Attribute(.unique)` is used.** CloudKit-compatible SwiftData forbids unique attributes; uniqueness is enforced at the application layer.
+**No `@Attribute(.unique)` is used.** This rule stays for two reasons: (a) application-layer enforcement yields clearer error messages, and (b) the schema is ready for a future sync phase without rewrites.
 
-### 3.6 Conflict behavior
+### 3.6 Conflict behavior (deferred)
 
-CloudKit applies record-level last-writer-wins. In-Summary applies the following rules:
+> **This section describes behavior planned for a future phase. v1 has no sync, so there are no cross-device conflict scenarios.** It is preserved here as a design reference so the future implementation starts from an explicit baseline.
 
-| Conflict type | Behavior |
+When the cross-device sync phase (private CloudKit) is reactivated, the following rules will apply. Until then, SwiftData's natural write ordering on the same device applies.
+
+| Conflict type | Planned behavior |
 | --- | --- |
 | Metadata change on either side (title, folder, lastReadLocator) | LWW by `updatedAt`; tiebreaker: deterministic comparison of record id |
 | Two distinct `TextHighlight` rows inserted concurrently with identical anchor hash on the same page | Keep both; dedupe in the UI by `(colorHex, selectedText, anchorHash)`; the user decides to merge or delete |
-| Two edits to the same `TextHighlight` while offline | LWW by `updatedAt`; on next open, surface a "review changes" badge linked to the prior version stored as `previousAnchorPayload: Data?` (added Phase 2) |
+| Two edits to the same `TextHighlight` while offline | LWW by `updatedAt`; on next open, surface a "review changes" badge linked to the prior version stored as `previousAnchorPayload: Data?` (field to be introduced with the sync phase) |
 | Two distinct ink drawings on the same page on two devices | LWW by the `updatedAt` associated with `drawingData`; the losing device shows a one-time banner: "your freeform ink on this page was replaced by a newer version from another device" |
 | Binaries (CKAsset) | LWW by upload `updatedAt`; older binaries are pruned after 30 days from CloudKit |
 
@@ -384,40 +398,43 @@ The unzipped tree lives in `Caches/<UUID>/` and is regenerated if missing.
 | Cross-document navigation | Disabled via `WKNavigationDelegate` |
 | `WKScriptMessageHandler` channels | Whitelisted names only: `pageChange`, `selectionCapture`, `jumpToPage` |
 
-### 5.3 File availability across devices
+### 5.3 File availability across devices (deferred)
 
-- **Default:** binaries are device-local. The library shows each document on the device that imported it. Other devices see metadata only and display "Not downloaded on this device".
-- **Opt-in upload:** the user taps "Make available on my other devices" in the document's context menu. The app:
+> **This section describes behavior planned for a future phase. v1 has no cross-device sync and no cloud upload of binaries.** The design is preserved so the future phase has an explicit baseline; no menu, button, or code path activates it in v1.
+
+- **Default (planned for the future sync phase):** binaries will be device-local. The library will show each document on the device that imported it. Other devices will see metadata only and display "Not downloaded on this device".
+- **Opt-in upload (planned):** the user taps "Make available on my other devices" in the document's context menu. The app:
   1. Computes `contentHash` if not already present.
   2. Uploads the binary as a `CKAsset` on `DocumentItem.contentCKAsset` (stored via SwiftData's `@Attribute(.externalStorage)`).
-  3. Records `contentAssetUploadedAt: Date` (Phase 2 field).
-- **Download:** on another device, the library detects a non-nil `contentCKAsset` for a document missing locally and offers "Download" with size and progress.
-- **Revocation:** "Remove from iCloud" deletes the `CKAsset` but keeps the metadata.
+  3. Records `contentAssetUploadedAt: Date` (field introduced with the sync phase).
+- **Download (planned):** on another device, the library detects a non-nil `contentCKAsset` for a document missing locally and offers "Download" with size and progress.
+- **Revocation (planned):** "Remove from iCloud" deletes the `CKAsset` but keeps the metadata.
 
-This strategy keeps the user's private library private, avoids accidental bandwidth consumption, and gives a clear user mental model.
+In v1 **none** of these four paths exist: no default cross-device state, no opt-in upload, no download, no revocation. The document context menu does not show these options. v1 **does not implement** any remote backup path, manual restore, or export to a custom server.
 
 ---
 
 ## 6. Phased Delivery
 
-Each phase ends with measurable, executable acceptance criteria. Phases are sequential; later phases may overlap once a phase is signed off.
+Each phase ends with measurable, executable acceptance criteria. Phases are sequential; later phases may overlap once a phase is signed off. Numbering reflects the real delivery order: the sync phase (CloudKit, `CKAsset`, sync monitor) is **not** part of v1 and is reserved for a future phase with its own rubric.
 
-### Phase 1 — Project setup, data model, sync monitor
+### Phase 1 — Project setup, local data model, library shell
 
 | Task | Concrete deliverable |
 | --- | --- |
-| Initialize Xcode project | iPadOS 26+ target; iPad orientations only; iCloud + CloudKit + Background Modes (Remote Notifications) capabilities enabled; Liquid Glass interface |
-| Define entities | All five `@Model` files compile without CloudKit schema warnings (no unique attributes, all relationships optional or defaulted) |
-| Container | `ModelContainer` configured with `cloudKitDatabase: .private("iCloud.<team-bundle-id>")` |
-| Sync monitor | `CloudSyncMonitor` publishes `idle`, `syncing`, `noNetwork`, `error` states via `@Observable` |
+| Initialize Xcode project | iPadOS 26+ target; iPad orientations only; **no** iCloud capability, **no** CloudKit capability, **no** Background Modes (Remote Notifications); Liquid Glass interface |
+| Define entities | All five `@Model` files compile without warnings; the schema is CloudKit-compatible by design (no unique attributes, all relationships optional or defaulted), but the container is **not** connected to any CloudKit database |
+| Container | **Local** SwiftData `ModelContainer` (no `cloudKitDatabase:`); the `ModelConfiguration` does not declare any CloudKit option |
+| Sync monitor | **Does not exist in v1.** No `CloudSyncMonitor` (or equivalent) is initialized; no code looks it up or publishes it |
 | Library shell | `LibraryGridView` shows a seed folder and seed document |
 
 **Acceptance criteria:**
 
-1. `xcodebuild -scheme InSummary -destination 'generic/platform=iOS Simulator' build` succeeds with zero warnings about CloudKit schema.
-2. On a real iPad, creating a folder + document persists across app restarts.
-3. On two real iPads signed into the same iCloud account, creating a folder on device A appears on device B within 5 minutes while both are online. (Measured with a stopwatch, not promised as a guarantee.)
-4. Sync monitor surfaces `noNetwork` when airplane mode is enabled.
+1. `xcodebuild -scheme InSummary -destination 'generic/platform=iOS Simulator' build` succeeds without data-schema warnings, and the resulting binary **does not** include iCloud, CloudKit, or `aps-environment` (push notifications) entitlements.
+2. On a real iPad, creating a folder + document persists across app restarts **without** a network and **without** an active iCloud session.
+3. The app runs end-to-end (import, read, annotate, sticky-note, export, library) with the device in airplane mode.
+4. A code search for `cloudKit`, `CKContainer`, `CKDatabase`, `CKAsset`, `NSPersistentCloudKitContainer`, `cloudKitDatabase`, `CloudSyncMonitor`, `RemoteNotification` returns **zero** matches in product code. (Mentions inside this specification document do not count.)
+5. The app installs and signs with a personal / development provisioning profile that does not require Apple Developer Program membership.
 
 ### Phase 2 — PDF engine + PencilKit ink
 
@@ -465,7 +482,7 @@ Each phase ends with measurable, executable acceptance criteria. Phases are sequ
 2. Selecting text in any engine and choosing a color creates a `TextHighlight` that re-appears when the document is reopened.
 3. Switching tools disables Pencil input in Navigation mode and disables text selection in Pencil mode.
 
-### Phase 5 — Library, import, export, opt-in cloud assets
+### Phase 5 — Library, import, export
 
 | Task | Concrete deliverable |
 | --- | --- |
@@ -473,14 +490,13 @@ Each phase ends with measurable, executable acceptance criteria. Phases are sequ
 | Thumbnails | PDF: `PDFPage.thumbnail(of:size:)`; EPUB: OPF cover; MD: text-snippet render |
 | Folders | Create / rename / delete folders; drag documents between folders |
 | Export | Burned-in PDF (PDF engine rasterizer + composite); `.md` summary of highlights + sticky notes |
-| Cloud assets | "Make available on my other devices" toggles `contentCKAsset`; download UI on receiving devices |
 
 **Acceptance criteria:**
 
 1. Importing the same file twice produces one library entry with one `contentHash`; the second import is rejected with a clear message.
 2. Exporting a PDF with ink + highlights + sticky notes produces a valid PDF where the marks are visible in standard readers.
 3. Exporting a `.md` summary produces a readable file listing highlights and sticky notes with stable locators.
-4. After opting in to cloud availability on device A, the document on device B shows a "Download" affordance; tapping it produces a byte-identical local copy (`contentHash` matches).
+4. After local import and export, the relevant bytes round-trip back to the original (`contentHash` preserved) and no network request was made.
 
 ### Phase 6 — Polish, accessibility, and stability
 
@@ -499,6 +515,15 @@ Each phase ends with measurable, executable acceptance criteria. Phases are sequ
 3. A 60-minute reading session on a real iPad does not crash and does not show the iPadOS "using too much memory" warning.
 4. Switching themes does not invalidate any stored locator or coordinate.
 
+### Future phase (not v1) — iCloud/CloudKit sync + opt-in binary upload
+
+> **This phase is not part of v1.** It is documented so the team knows the intended shape, but **none** of the criteria below are v1 acceptance criteria.
+
+- The `ModelContainer` is connected to a private CloudKit database (`cloudKitDatabase: .private("iCloud.<team-bundle-id>")`).
+- `CloudSyncMonitor` is introduced with `idle`, `syncing`, `noNetwork`, `error` states.
+- The "Make available on my other devices" menu, download flow, revocation flow, and conflict banners described in §3.6 and §5.3 are reactivated.
+- This phase will require an active Apple Developer Program membership to issue valid iCloud entitlements.
+
 ---
 
 ## 7. Test Strategy
@@ -509,11 +534,13 @@ Each phase ends with measurable, executable acceptance criteria. Phases are sequ
 | Snapshot tests | Markdown and EPUB page rendering | `swift-snapshot-testing` (Phase 6 decision) |
 | UI tests | Import flow, library navigation, sticky-note create/move/delete, theme switching | XCUITest |
 | Security corpus | 8–12 hostile EPUBs (path traversal, scripts, disallowed types, oversized entries) | XCTest fixture bundle |
-| Sync manual test | Two real iPads signed into the same iCloud account | Manual + checklist; not automatable in CI |
+| Offline test | Full read + annotate + export session with the device in airplane mode | Manual + checklist on real hardware |
 | Performance manual test | PencilKit ink latency, memory under Instruments during a 30-minute reading session | Instruments, manual notes |
 | Accessibility | VoiceOver walkthrough, dynamic type sweep | Manual + Xcode Accessibility Inspector |
 
 **Rule for "manual" tests:** they are recorded as a checklist with pass/fail on real hardware before the phase is signed off. They are not claimed as guarantees in user-facing copy.
+
+> **Deferred (future phase):** the "manual sync test between two devices" that appeared in earlier drafts. It does not run in v1 because there is no sync. When the sync phase is introduced, it returns to this table.
 
 ---
 
@@ -521,20 +548,24 @@ Each phase ends with measurable, executable acceptance criteria. Phases are sequ
 
 | Risk | Likelihood | Impact | Mitigation |
 | --- | --- | --- | --- |
-| CloudKit schema invalidation after a model change | Medium | High (data loss) | CloudKit-compatible invariants are baked into the review checklist; any required change ships as a new entity version |
+| The SwiftData schema becomes incompatible with CloudKit if `@Attribute(.unique)` or a defaulted-less relationship is later added | Medium | High (would force migration when sync reactivates) | CloudKit compatibility is an invariant of the reviewer checklist (§B); any required change ships as a new entity version |
 | EPUB parser is hostile-input brittle | High | Medium | `EPUBSandboxValidator` blocks path traversal, scripts, and disallowed content types before any rendering |
 | Markdown re-pagination shifts ink drawings when font size changes | High | Low | Document the limitation; ship a "reflow safe" overlay in a later phase |
-| Two-device offline edits to the same ink drawing silently overwrite | Medium | Medium | LWW with explicit "your drawing was replaced" banner; preserve prior version on the device for one sync cycle |
-| CloudKit asset storage costs grow with library size | Medium | Medium | Opt-in only; UI shows estimated asset size before upload; deletion prunes assets after 30 days |
+| Local concurrent edits to the same ink drawing (rare multi-window case) on the same device | Low | Low | SwiftData serializes write order; no silent loss. Byte-level merges remain out of scope |
 | PDFKit cannot resolve normalized rects after a re-flow (rare; PDFs are fixed-layout) | Low | Low | Validator marks "needs review" when rects are out of `[0,1]` |
 | WKWebView JS bridge misuse grants unintended capabilities | Low | High | Whitelisted message names; no `evaluateJavaScript` accepts arbitrary caller-provided code; CSP-style restrictions on extracted HTML |
+| Deferred risk (future sync phase): offline edits on two devices to the same ink drawing silently overwrite | Medium | Medium | When sync reactivates: LWW with explicit "your drawing was replaced" banner; preserve prior version on the device for one sync cycle |
+| Deferred risk (future sync phase): CloudKit asset storage costs grow with library size | Medium | Medium | When sync reactivates: opt-in only; UI shows estimated asset size before upload; deletion prunes assets after 30 days |
 
 ---
 
 ## 9. Non-Goals (consolidated)
 
 - Multi-user sharing, comments, presence.
-- Server-side rendering or server-side sync beyond CloudKit.
+- Cross-device sync (iCloud/CloudKit) — **deferred to a future phase**.
+- Uploading or downloading binaries as `CKAsset`, "Make available on my other devices", cross-device book availability — **deferred with sync**.
+- Custom backend, manual restore, or remote backup. v1 implements and claims no remote backup path.
+- Server-side rendering or any sync beyond the local sandbox.
 - DRM circumvention or content decryption beyond what EPUB/PDF allow natively.
 - Audio, video, or interactive widgets inside documents.
 - AI features (summarization, OCR, Q&A).
@@ -550,9 +581,10 @@ Each phase ends with measurable, executable acceptance criteria. Phases are sequ
 These are intentionally deferred; they do not block v1 but are recorded so future contributors know they exist.
 
 1. Should `lastReadLocator` be migrated to a `Codable` Swift type once SwiftData gains native enum support (currently `Data` + JSON)?
-2. When SwiftData gains lightweight migration support beyond what CloudKit allows, should `contentCKAsset` move to a separate `DocumentAvailability` entity to reduce per-record payload size?
+2. **Deferred to the future sync phase:** when SwiftData gains lightweight migration support beyond what CloudKit allows, should `contentCKAsset` move to a separate `DocumentAvailability` entity to reduce per-record payload size? v1 does not decide this; the field remains `nil` and reserved.
 3. Should ink drawings be stored per logical page or per viewport snapshot? Current decision: per logical page for PDF, per ordinal "page" for MD with the documented limitation, per CFI segment for EPUB.
 4. Should the reader support custom font loading beyond the embedded `Caveat-Regular.ttf`? Deferred — security implications for untrusted font files.
+5. **(New)** What is the exact rubric (entitlements, container identifier, deployment scheme) for reactivating the sync phase when it is decided to resume? Deferred until Apple Developer Program membership is obtained.
 
 ---
 
@@ -574,6 +606,8 @@ These are intentionally deferred; they do not block v1 but are recorded so futur
 <true/>
 ```
 
+> **v1 does not require iCloud, CloudKit, or APS (push notifications) entitlements.** The target's `.entitlements` file is empty or contains only non-iCloud entitlements. Any future addition is justified in the PR that reactivates the sync phase.
+
 `UIPreferredFrameRateRangeMinimum` is intentionally not set in this spec; the app relies on standard ProMotion behavior without promising a frame rate.
 
 ## Appendix B — Reviewer checklist
@@ -581,7 +615,12 @@ These are intentionally deferred; they do not block v1 but are recorded so futur
 - [ ] §1.3 non-goals are respected by every phase's tasks.
 - [ ] §3.5 invariants are enforced in `FileStorageService` and at insertion sites.
 - [ ] §4.4 EPUB engine never loads a `WKWebView` without `EPUBSandboxValidator` having passed.
-- [ ] §5.3 file-availability strategy is reflected in the library UI (no silent broken documents).
+- [ ] **No active CloudKit/iCloud code in v1.** A search for `cloudKit`, `CKContainer`, `CKAsset`, `NSPersistentCloudKitContainer`, `cloudKitDatabase`, `CloudSyncMonitor`, `RemoteNotification` returns zero matches in product code.
+- [ ] The target's entitlements file does not include iCloud, CloudKit, or `aps-environment`.
+- [ ] The `ModelContainer` is built without `cloudKitDatabase:` and without `NSPersistentCloudKitContainer`.
+- [ ] Every mention of CloudKit/iCloud in this document is labelled "deferred" or "future phase".
 - [ ] §6 acceptance criteria for each phase are exercised before sign-off.
-- [ ] §7 sync manual test passes on two real devices with the same iCloud account.
+- [ ] §7 offline test (airplane mode) passes on real hardware for the full v1 flow.
 - [ ] §8 risks have concrete mitigations in code, not just in this document.
+
+---

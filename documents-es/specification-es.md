@@ -1,7 +1,7 @@
 # Especificación Técnica — Lector y Anotador Universal para iPad
 
 **Proyecto:** In-Summary (Lector y Anotador Universal para iPad)
-**Plataforma:** iPadOS 17.0+
+**Plataforma:** iPadOS 26.0+
 **Lenguaje / Herramientas:** Swift 5.10 / Swift 6, Xcode 15 / 16
 **Estado del documento:** Especificación canónica — sustituye a `especifications.md` y `especifications-2.md`
 **Audiencia:** Revisores, futuros colaboradores y la persona que implementará
@@ -10,12 +10,13 @@
 
 ## Resumen de Decisiones
 
-In-Summary es un entorno personal de lectura y estudio, basado en biblioteca local, para iPad. Permite importar documentos en **PDF**, **EPUB** y **Markdown**, paginarlos en horizontal, soportar dos modos de anotación (resaltado semántico de texto y tinta libre con Apple Pencil), superponer notas adhesivas flotantes persistentes y sincronizar los metadatos de las anotaciones mediante una base de datos privada de CloudKit. Los archivos originales permanecen en el dispositivo que los importó; los metadatos y las anotaciones viajan por iCloud.
+In-Summary es un entorno personal de lectura y estudio, basado en biblioteca local, para iPad. Permite importar documentos en **PDF**, **EPUB** y **Markdown**, leerlos con paginación horizontal o vertical según la elección del lector, soportar dos modos de anotación (resaltado semántico de texto y tinta libre con Apple Pencil), superponer notas adhesivas flotantes persistentes y sincronizar los metadatos de las anotaciones mediante una base de datos privada de CloudKit. La interfaz adopta el lenguaje visual Liquid Glass de iOS 26, adaptado para iPadOS. Los archivos originales permanecen en el dispositivo que los importó; los metadatos y las anotaciones viajan por iCloud.
 
 | Área | Decisión |
-|---|---|
+| --- | --- |
 | Capa de lectura | Shell de SwiftUI que aloja un motor por formato mediante `UIViewRepresentable` |
-| Paginación | Horizontal forzada; nunca desplazamiento vertical dentro de un documento |
+| Paginación | Horizontal o vertical, elegida por el lector y persistida por documento |
+| Diseño de interfaz | Liquid Glass de iOS 26, adaptado para iPadOS y respetando accesibilidad y contraste |
 | Capas de anotación | Cuatro capas en orden Z (resaltados semánticos → tinta PencilKit → post-its → superposiciones de UI) |
 | Persistencia | Entidades SwiftData `@Model` con base de datos privada de CloudKit; binarios locales, assets opcionales |
 | Unicidad | Sin `@Attribute(.unique)`; la unicidad se aplica en la capa de aplicación al importar |
@@ -57,7 +58,7 @@ In-Summary es un entorno personal de lectura y estudio, basado en biblioteca loc
 Una aplicación iPad basada en biblioteca que permite a un único usuario:
 
 - Importar archivos `.pdf`, `.epub` y `.md` a una biblioteca privada en el dispositivo.
-- Leer cada documento con **paginación horizontal forzada** (sin desplazamiento vertical dentro del documento).
+- Leer cada documento con **paginación horizontal o vertical**, según la preferencia elegida por el lector.
 - Resaltar texto de forma semántica (por carácter) y/o pintar tinta libre con Apple Pencil.
 - Colocar notas adhesivas flotantes en cualquier página, editarlas con teclado o Scribble y reposicionarlas mediante gestos de arrastre.
 - Organizar documentos en carpetas creadas por el usuario.
@@ -67,7 +68,8 @@ Una aplicación iPad basada en biblioteca que permite a un único usuario:
 
 ### 1.2 Restricciones
 
-- **Plataforma:** solo iPadOS 17.0+. Sin iPhone, sin Mac Catalyst, sin visionOS.
+- **Plataforma:** solo iPadOS 26.0+. Sin iPhone, sin Mac Catalyst, sin visionOS.
+- **Interfaz:** usar el sistema visual Liquid Glass de iOS 26, adaptado a iPadOS; los efectos translúcidos no pueden reducir la legibilidad, el contraste ni la compatibilidad con VoiceOver.
 - **Conectividad:** la lectura, las anotaciones y la organización de la biblioteca funcionan completamente sin conexión. La sincronización con CloudKit es oportunista y del mejor esfuerzo.
 - **Sin servicios de terceros:** sin servidores propios, sin SDKs de analítica, sin SDKs de pago.
 - **Sin elusión de DRM:** la aplicación no evade el DRM de tiendas ni de editoriales.
@@ -75,7 +77,7 @@ Una aplicación iPad basada en biblioteca que permite a un único usuario:
 ### 1.3 Fuera del alcance (v1)
 
 | Fuera del alcance | Motivo de exclusión |
-|---|---|
+| --- | --- |
 | Compartir libros con otros usuarios | La BD privada de CloudKit es monousuario; compartir exige otro modelo de almacenamiento |
 | Anotaciones colaborativas | Igual que arriba; queda fuera hasta introducir compartición |
 | Conversión de formato (EPUB→PDF, etc.) | Añade mucha complejidad y riesgo de propiedad/licencias |
@@ -128,7 +130,7 @@ Una aplicación iPad basada en biblioteca que permite a un único usuario:
 ### 2.2 Mapa de módulos
 
 | Módulo | Responsabilidad | Tipos clave |
-|---|---|---|
+| --- | --- | --- |
 | `App/` | Punto de entrada, DI, cableado de capabilities | `UniversalReaderApp`, `DependencyContainer` |
 | `Models/` | Entidades SwiftData | `FolderEntity`, `DocumentItem`, `PageAnnotation`, `TextHighlight`, `StickyNoteEntity` |
 | `Services/Storage/` | E/S de archivos en sandbox, caché de miniaturas, monitor de sync | `FileStorageService`, `ThumbnailCache`, `CloudSyncMonitor` |
@@ -146,7 +148,7 @@ Una aplicación iPad basada en biblioteca que permite a un único usuario:
 ### 2.3 Distribución del sandbox
 
 | Ruta | Propósito | ¿Sincronizado? |
-|---|---|---|
+| --- | --- | --- |
 | `Application Support/Documents/<UUID>.<ext>` | Binarios originales importados | No (local del dispositivo) |
 | `Application Support/Thumbnails/<UUID>.png` | Miniaturas de portada | No |
 | `Caches/<UUID>/` | HTML/CSS/imágenes extraídos del EPUB | No (regenerable) |
@@ -244,7 +246,7 @@ Estos nombres y nombres de campos son la fuente de verdad. Borradores anteriores
 ### 3.2 Reconciliación de nombres
 
 | Nombre en borrador previo | Nombre canónico | Motivo |
-|---|---|---|
+| --- | --- | --- |
 | `rotationDegrees` | `rotationAngle` | Coherencia con el código de `especifications-2.md` |
 | `fileTypeRaw` solo | `fileTypeRaw` + `fileExtension` | `fileExtension` simplifica la lógica de exportación |
 | `lastReadPageIndex` solo | `lastReadLocator: Data` + `lastReadPageIndex` (pista de visualización) | Los localizadores estables no se pueden reducir a un índice de página |
@@ -258,7 +260,7 @@ Estos nombres y nombres de campos son la fuente de verdad. Borradores anteriores
 Todas las cargas se codifican en JSON dentro de `Data`. El discriminador es `anchorFormatRaw`.
 
 | Formato | Forma del JSON | Estabilidad |
-|---|---|---|
+| --- | --- | --- |
 | `pdf` | `{"page":Int,"rects":[[x,y,w,h],…],"quads":[[x,y,…],…]}` donde x/y/w/h están normalizados 0..1 al `MediaBox` de la página | Estable; el PDF es de layout fijo |
 | `markdown` | `{"contentHash":String,"range":{"location":Int,"length":Int},"blockPath":[Int,…]}` | Estable entre viewports; se invalida cuando `contentHash` difiere |
 | `epub` | `{"cfi":String,"fallbackRange":String?}` | Estable entre viewports; cae al Range serializado si el CFI falla |
@@ -272,7 +274,7 @@ Reglas de validación al cargar:
 ### 3.4 Espacios de coordenadas
 
 | Capa | Espacio de coordenadas de almacenamiento | Espacio de coordenadas de renderizado | Notas |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Resaltado de texto PDF | **Espacio del documento PDF**, normalizado 0..1 al `MediaBox` de la página | Se convierte al espacio de vista mediante `PDFView.convert(_:to:)` | El origen de PDFKit está abajo a la izquierda |
 | Tinta PencilKit (`drawingData`) | **Espacio del canvas PencilKit** (origen abajo a la izquierda, puntos), anclado al viewport | Se reproduce dentro de un `PKCanvasView` dimensionado al viewport | Cambiar de página carga un `PKDrawing` nuevo |
 | Post-it | **Rect del viewport de página**, normalizado 0..1 del área de contenido renderizado | `(normalizedX * viewportWidth, normalizedY * viewportHeight)` | Sobrevive a rotación y Split View |
@@ -283,7 +285,7 @@ Reglas de validación al cargar:
 ### 3.5 Invariantes de unicidad
 
 | Invariante | Dónde se aplica | Motivo |
-|---|---|---|
+| --- | --- | --- |
 | `DocumentItem.localFileName` es único en el sandbox de la app | `FileStorageService.importDocument(_:)` genera `<UUID>.<ext>` y rechaza colisiones | El nombre basado en UUID da unicidad por construcción |
 | `DocumentItem.id` es único en todos los dispositivos | UUID, fijado al insertar | Requerido por CloudKit |
 | `DocumentItem.contentHash` coincide con los bytes del archivo en disco | Se recalcula al importar | Detección de deriva |
@@ -296,7 +298,7 @@ Reglas de validación al cargar:
 CloudKit aplica el último escritor gana a nivel de registro. In-Summary aplica las siguientes reglas:
 
 | Tipo de conflicto | Comportamiento |
-|---|---|
+| --- | --- |
 | Cambio de metadatos en cualquier lado (título, carpeta, lastReadLocator) | LWW por `updatedAt`; desempate: comparación determinista del id de registro |
 | Dos `TextHighlight` distintos insertados a la vez con hash de anclaje igual en la misma página | Se conservan ambos; se deduplican en la UI por `(colorHex, selectedText, anchorHash)`; el usuario decide fusionar o borrar |
 | Dos ediciones al mismo `TextHighlight` estando desconectado | LWW por `updatedAt`; al abrir de nuevo, se muestra una insignia de "revisar cambios" vinculada a la versión previa, guardada como `previousAnchorPayload: Data?` (campo añadido en Fase 2) |
@@ -310,9 +312,9 @@ CloudKit aplica el último escritor gana a nivel de registro. In-Summary aplica 
 ### 4.1 Comparación de motores
 
 | Aspecto | Motor PDF | Motor Markdown | Motor EPUB |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Tecnología base | `PDFKit` (`PDFView`, `PDFDocument`) | AST de `swift-markdown` + TextKit 2 (`NSTextLayoutManager`) | `WKWebView` + CSS Multi-Column + puente JS |
-| Paginación | `displayMode = .singlePage`, `displayDirection = .horizontal`, `usePageViewController(true)` | Paginador propio: texto → AST → `NSAttributedString` → `NSTextContainer` repetidos dimensionados al viewport | Columnas CSS a 100vw; `window.scrollTo` horizontal controlado por JS |
+| Paginación | Preferencia por documento: horizontal con `displayMode = .singlePage`, `displayDirection = .horizontal`, `usePageViewController(true)`; vertical con scroll continuo | Preferencia por documento: `TabView` paginado horizontal o `ScrollView` vertical sobre las páginas calculadas | Preferencia por documento: columnas CSS a 100vw con desplazamiento horizontal controlado por JS o flujo vertical con scroll habilitado |
 | Gesto de cambio de página | Swipe nativo de `UIPageViewController` | SwiftUI `TabView(selection:)` con `.page(indexDisplayMode: .never)` | `window.scrollTo(left = pageIndex * innerWidth)` en JS disparado por Swift |
 | Localizador estable de resaltados | `(pageIndex, [CGRect] normalizado)` | `(contentHash, NSRange, blockPath)` | Cadena CFI con Range DOM de respaldo |
 | Superficie para tinta | Overlay `PKCanvasView` por página | Overlay `PKCanvasView` por "página" ordinal derivada del `NSRange` (Fase 1) | Overlay `PKCanvasView` por segmento de viewport resuelto por CFI |
@@ -321,7 +323,7 @@ CloudKit aplica el último escritor gana a nivel de registro. In-Summary aplica 
 
 - `PDFView` se envuelve en `UIViewRepresentable`. Los gestos del Pencil se enrutan al canvas de superposición (véase §5) en lugar del PDFView.
 - Conversión de coordenadas: pantalla → punto PDF → rect normalizado en `MediaBox`.
-- `usePageViewController(true)` aporta swipe horizontal nativo con inercia.
+- En modo horizontal, `usePageViewController(true)` aporta swipe nativo con inercia; en modo vertical, el lector usa desplazamiento continuo.
 - Se admite `autoScales = true` con zoom por pinza; el zoom no invalida los rects de resaltado porque están normalizados.
 
 ### 4.3 Motor Markdown
@@ -332,15 +334,16 @@ CloudKit aplica el último escritor gana a nivel de registro. In-Summary aplica 
 4. Calcular el tamaño del viewport a partir de las insets del área segura del lector menos los márgenes.
 5. En bucle, asignar `NSTextContainer(size: viewport)` y pedir a `NSTextLayoutManager` el rango que llena el contenedor sin dividir párrafos entre contenedores cuando sea evitable.
 6. Persistir `[(NSRange, containerIndex)]` por documento; exponer el `pageIndex` ordinal solo para visualización.
-7. La búsqueda de resaltados se hace por `NSRange` dentro del contenido con `contentHash` coincidente; si el archivo cambió, el resaltado se oculta y se lista para revisión.
-8. La tinta se persiste por "página" ordinal en Fase 1 con la salvedad de que la re-paginación (cambio de tamaño de fuente) desplaza los dibujos; la especificación lo acepta y deja como mejora Fase 2+ la ruta "reflow safe".
+7. Mostrar los contenedores en `TabView(selection:)` para el modo horizontal o en `ScrollView` para el modo vertical, según la preferencia persistida del documento.
+8. La búsqueda de resaltados se hace por `NSRange` dentro del contenido con `contentHash` coincidente; si el archivo cambió, el resaltado se oculta y se lista para revisión.
+9. La tinta se persiste por "página" ordinal en Fase 1 con la salvedad de que la re-paginación (cambio de tamaño de fuente) desplaza los dibujos; la especificación lo acepta y deja como mejora Fase 2+ la ruta "reflow safe".
 
 ### 4.4 Motor EPUB
 
 1. **Descompresión segura** (§5) en `Caches/<UUID>/`.
 2. Leer `META-INF/container.xml` para localizar el OPF.
 3. Parsear el OPF para enumerar los items del spine (orden de lectura).
-4. Inyectar CSS para forzar columnas horizontales a 100vw y desactivar el scroll vertical.
+4. Inyectar CSS según la preferencia de lectura: columnas horizontales a 100vw o flujo vertical con scroll habilitado.
 5. Hacer de puente mediante `WKScriptMessageHandler` para exponer: índice de página actual, número de páginas, petición de salto a índice, captura de selección de texto (range → CFI).
 6. **Seguridad:** `WKWebView` se configura con `allowFileAccessFromFileURLs = false`, `allowUniversalAccessFromFileURLs = false`. El HTML del lector se carga desde un directorio aislado por documento. La navegación entre documentos está desactivada.
 
@@ -361,7 +364,7 @@ Por cada evento de cambio de página:
 ### 5.1 Descompresión segura de EPUB (`EPUBSandboxValidator`)
 
 | Comprobación | Acción ante fallo |
-|---|---|
+| --- | --- |
 | Nombre de entrada ZIP con `..`, ruta absoluta o NUL | Rechazar el EPUB completo |
 | Nombre de entrada que escapa del directorio destino tras normalizar | Rechazar |
 | `Content-Type` fuera de la lista permitida `text/html`, `text/css`, `image/png`, `image/jpeg`, `image/gif`, `image/svg+xml`, `application/xhtml+xml`, `application/xml` | Saltar entrada; registrar en advertencias |
@@ -374,7 +377,7 @@ El árbol descomprimido vive en `Caches/<UUID>/` y se regenera si falta.
 ### 5.2 Aislamiento del WebView
 
 | Ajuste | Valor |
-|---|---|
+| --- | --- |
 | `WKWebView.allowFileAccessFromFileURLs` | `false` |
 | `WKWebView.allowUniversalAccessFromFileURLs` | `false` |
 | `WKPreferences.javaScriptCanOpenWindowsAutomatically` | `false` |
@@ -402,8 +405,8 @@ Cada fase termina con criterios de aceptación ejecutables y medibles. Las fases
 ### Fase 1 — Configuración del proyecto, modelo de datos, monitor de sync
 
 | Tarea | Entregable concreto |
-|---|---|
-| Inicializar proyecto Xcode | Target iPadOS 17+; solo orientaciones iPad; capabilities iCloud + CloudKit + Background Modes (Remote Notifications) activadas |
+| --- | --- |
+| Inicializar proyecto Xcode | Target iPadOS 26+; solo orientaciones iPad; capabilities iCloud + CloudKit + Background Modes (Remote Notifications) activadas; interfaz Liquid Glass |
 | Definir entidades | Los cinco archivos `@Model` compilan sin advertencias de esquema de CloudKit (sin atributos únicos, todas las relaciones opcionales o con valor por defecto) |
 | Contenedor | `ModelContainer` configurado con `cloudKitDatabase: .private("iCloud.<team-bundle-id>")` |
 | Monitor de sync | `CloudSyncMonitor` publica `idle`, `syncing`, `noNetwork`, `error` vía `@Observable` |
@@ -419,38 +422,39 @@ Cada fase termina con criterios de aceptación ejecutables y medibles. Las fases
 ### Fase 2 — Motor PDF + tinta PencilKit
 
 | Tarea | Entregable concreto |
-|---|---|
-| Lector PDF | `PDFReaderCoordinator` abre PDFs con `singlePage`/`horizontal`/`usePageViewController` |
+| --- | --- |
+| Lector PDF | `PDFReaderCoordinator` abre PDFs en modo horizontal paginado o vertical continuo según la preferencia del lector |
 | Overlay de tinta | `PencilCanvasOverlay` con `drawingPolicy = .pencilOnly`, herramienta por defecto `.highlighter` |
 | Persistencia al cambiar página | En `PDFViewPageChangedNotification`, guardar el `PKDrawing` de la página anterior, cargar el `drawingData` de la siguiente |
 
 **Criterios de aceptación:**
 
-1. Abrir un PDF de 20 páginas; el swipe horizontal cambia de página con la transición nativa de `PDFView`.
-2. Dibujar en la página 1, deslizar a la página 2 (en blanco), dibujar en la 2, volver a la 1 — los trazos originales se conservan byte a byte.
-3. No aparece scroll vertical dentro del lector.
+1. Abrir un PDF de 20 páginas; en modo horizontal, el swipe cambia de página con la transición nativa de `PDFView`; en modo vertical, el desplazamiento continuo recorre el documento.
+2. Dibujar en la página 1, navegar a la página 2 (en blanco), dibujar en la 2, volver a la 1 — los trazos originales se conservan byte a byte.
+3. La preferencia de paginación horizontal o vertical se conserva al cerrar y volver a abrir el documento.
 4. `PencilCanvasOverlay` ignora los toques con el dedo; solo dibuja el Pencil.
 
 ### Fase 3 — Motores Markdown y EPUB
 
 | Tarea | Entregable concreto |
-|---|---|
-| Parser y paginador Markdown | `MarkdownParser` + `MarkdownPaginator` producen `[(NSRange, Int)]`; se renderizan en `TabView(selection:)` |
+| --- | --- |
+| Parser y paginador Markdown | `MarkdownParser` + `MarkdownPaginator` producen `[(NSRange, Int)]`; se renderizan en `TabView(selection:)` horizontal o `ScrollView` vertical según la preferencia del lector |
 | Descompresión segura EPUB | `EPUBSandboxValidator` pasa el corpus de pruebas (casos table-driven) |
-| Inyección CSS EPUB | Columnas 100vw, sin scroll vertical, puente JS para índice de página y selección de texto |
+| Inyección CSS EPUB | Columnas 100vw para modo horizontal o flujo vertical para modo vertical; puente JS para índice de página y selección de texto |
 | Progreso de lectura | `lastReadLocator` (`NSRange` codificado para MD, CFI codificado para EPUB) persiste por documento |
 
 **Criterios de aceptación:**
 
 1. Un archivo Markdown de 5 KB pagina en ≥ 1 página al tamaño de fuente por defecto y en ≥ 1 página (posible número distinto) al +20% de fuente; ningún párrafo se corta a mitad de línea en ningún caso.
-2. Un EPUB del corpus de pruebas carga los capítulos del spine en orden; el scroll horizontal entre páginas es fluido; no hay scroll vertical.
-3. Reanudar un documento restaura al `NSRange` exacto (MD) o al CFI exacto (EPUB).
-4. `EPUBSandboxValidator` rechaza el corpus malicioso de EPUBs (path traversal, inyección de `<script>`, tipos no permitidos).
+2. El mismo documento Markdown se puede leer en `TabView` horizontal y en `ScrollView` vertical; la preferencia elegida se conserva al volver a abrirlo.
+3. Un EPUB del corpus de pruebas carga los capítulos del spine en orden; la navegación horizontal entre páginas y el desplazamiento vertical continuo funcionan según la preferencia elegida.
+4. Reanudar un documento restaura al `NSRange` exacto (MD) o al CFI exacto (EPUB).
+5. `EPUBSandboxValidator` rechaza el corpus malicioso de EPUBs (path traversal, inyección de `<script>`, tipos no permitidos).
 
 ### Fase 4 — Post-its y resaltado semántico
 
 | Tarea | Entregable concreto |
-|---|---|
+| --- | --- |
 | Overlay de post-it | `StickyNoteView` con colores pastel, gesto de arrastre que actualiza `normalizedX/Y`, `TextEditor` con Scribble |
 | Resaltados semánticos | PDF: capturar `PDFSelection.bounds` → rects normalizados; MD: capturar `NSRange`; EPUB: capturar CFI |
 | Modos de herramienta | Conmutador `Navigation` / `Pencil` / `Highlight` / `Eraser` |
@@ -464,7 +468,7 @@ Cada fase termina con criterios de aceptación ejecutables y medibles. Las fases
 ### Fase 5 — Biblioteca, importación, exportación, assets en la nube opt-in
 
 | Tarea | Entregable concreto |
-|---|---|
+| --- | --- |
 | Importación | `.fileImporter` admite `.pdf`, `.epub`, `.md`; copia a `Application Support/Documents/<UUID>.<ext>`; rechaza duplicados por `contentHash` |
 | Miniaturas | PDF: `PDFPage.thumbnail(of:size:)`; EPUB: portada del OPF; MD: render de fragmento de texto |
 | Carpetas | Crear / renombrar / borrar carpetas; arrastrar documentos entre carpetas |
@@ -481,7 +485,7 @@ Cada fase termina con criterios de aceptación ejecutables y medibles. Las fases
 ### Fase 6 — Pulido, accesibilidad y estabilidad
 
 | Tarea | Entregable concreto |
-|---|---|
+| --- | --- |
 | Temas de lectura | Temas Claro, Sepia, Oscuro por documento |
 | Modo inmersivo | Tocar el centro oculta los chrome |
 | Multiwindow | Dos ventanas abren dos documentos distintos simultáneamente |
@@ -500,7 +504,7 @@ Cada fase termina con criterios de aceptación ejecutables y medibles. Las fases
 ## 7. Estrategia de Pruebas
 
 | Tipo de prueba | Alcance | Herramientas |
-|---|---|---|
+| --- | --- | --- |
 | Pruebas unitarias | `MarkdownParser`, `MarkdownPaginator`, `PDFCoordinateConverter`, `EPUBSandboxValidator`, `EPUBManifestParser`, validación de anclajes por formato | XCTest, casos table-driven |
 | Pruebas de snapshot | Renderizado de páginas Markdown y EPUB | `swift-snapshot-testing` (decisión Fase 6) |
 | Pruebas de UI | Flujo de importación, navegación de biblioteca, crear/mover/borrar post-it, cambio de tema | XCUITest |
@@ -516,7 +520,7 @@ Cada fase termina con criterios de aceptación ejecutables y medibles. Las fases
 ## 8. Riesgos y Mitigaciones
 
 | Riesgo | Probabilidad | Impacto | Mitigación |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Invalidación del esquema de CloudKit tras un cambio de modelo | Media | Alto (pérdida de datos) | Las invariantes compatibles con CloudKit se integran en el checklist de revisión; cualquier cambio necesario se entrega como nueva versión de la entidad |
 | Parser EPUB frágil ante entrada hostil | Alta | Medio | `EPUBSandboxValidator` bloquea path traversal, scripts y tipos no permitidos antes de cualquier renderizado |
 | La re-paginación de Markdown desplaza los dibujos de tinta al cambiar el tamaño de fuente | Alta | Bajo | Se documenta la limitación; se enviará una superposición "reflow safe" en una fase posterior |

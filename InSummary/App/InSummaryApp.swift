@@ -2,40 +2,38 @@
 //  InSummaryApp.swift
 //  InSummary
 //
-//  Application entry point placeholder for PR1 of the approved Phase 1
-//  Feature Branch Chain. This scaffold intentionally contains no domain
-//  logic, persistence wiring, or library UI; downstream PRs introduce those
-//  concerns in the agreed order so each slice compiles independently.
+//  Application entry point. Phase 1 wires the local ModelContainer into the
+//  SwiftUI environment and presents the minimal accessible library shell.
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct InSummaryApp: App {
 
-    var body: some Scene {
-        WindowGroup {
-            PlaceholderRootView()
+    /// Local-only SwiftData container for the canonical schema.
+    private let container: ModelContainer
+
+    init() {
+        do {
+            self.container = try PersistenceController.makeMainContainer()
+        } catch {
+            // Phase 1 contract: a failed local bootstrap is a fatal
+            // configuration error; we surface it immediately rather
+            // than degrade to an empty shell that hides the bug.
+            fatalError("Failed to initialize local SwiftData container: \(error)")
         }
     }
-}
 
-/// Minimal placeholder surface used only to verify the build and runtime
-/// bootstrap succeed. Replaced by the real library shell in PR2.
-private struct PlaceholderRootView: View {
-    var body: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "doc.text")
-                .font(.system(size: 64))
-                .foregroundStyle(.tint)
-                .accessibilityHidden(true)
-            Text("In-Summary")
-                .font(.largeTitle)
-                .accessibilityAddTraits(.isHeader)
-            Text("PR1 · Project scaffold")
-                .font(.headline)
-                .foregroundStyle(.secondary)
+    var body: some Scene {
+        WindowGroup {
+            LibraryGridView()
+                .task {
+                    // Seed the local library exactly once, at first launch.
+                    try? LibrarySeedService.seedIfNeeded(in: container.mainContext)
+                }
         }
-        .padding()
+        .modelContainer(container)
     }
 }

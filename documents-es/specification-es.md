@@ -164,7 +164,6 @@ Una aplicación iPad basada en biblioteca que permite a un único usuario:
 | `Application Support/Thumbnails/<UUID>.png` | Miniaturas de portada | No |
 | `Caches/<UUID>/` | HTML/CSS/imágenes extraídos del EPUB | No (regenerable) |
 | Almacén SwiftData (ubicación del sistema) | Todas las entidades siguientes | **No** (local en v1; sincronización diferida) |
-| `CKAsset` en `DocumentItem.contentCKAsset` | Sincronización opt-in del binario del libro | **Diferido**; el campo queda reservado en el esquema pero no se usa en v1 |
 
 ---
 
@@ -172,7 +171,7 @@ Una aplicación iPad basada en biblioteca que permite a un único usuario:
 
 ### 3.1 Entidades canónicas (esquema SwiftData autoritativo)
 
-Estos nombres y nombres de campos son la fuente de verdad. El esquema se mantiene **compatible con CloudKit por anticipación** (sin atributos únicos, todas las relaciones opcionales o con valor por defecto) para que la fase de sincronización futura no exija reescritura de entidades. **Ninguna entidad está conectada a una base de datos CloudKit en v1.**
+Estos nombres y nombres de campos son la fuente de verdad. El esquema evita atributos únicos y mantiene relaciones opcionales o con valor por defecto. **Ninguna entidad está conectada a una base de datos CloudKit en v1**; reactivar la sincronización futura exige una migración explícita.
 
 ```swift
 @Model final class FolderEntity {
@@ -196,14 +195,9 @@ Estos nombres y nombres de campos son la fuente de verdad. El esquema se mantien
     var lastReadLocator: Data = Data()       // localizador estable codificado en JSON
     var lastReadPageIndex: Int = 0           // SOLO PISTA de visualización — véase §3.4
     var totalPages: Int = 1                  // SOLO PISTA para reflowable
+    var paginationModeRaw: String = "horizontal" // "horizontal" | "vertical"
     var createdAt: Date = Date()
     var updatedAt: Date = Date()
-
-    // DIFERIDO (fase de sincronización futura). Reservado en el esquema
-    // para que la subida opt-in del binario como CKAsset no fuerce una
-    // migración. Permanece nil y sin uso en v1.
-    @Attribute(.externalStorage)
-    var contentCKAsset: Data? = nil
 
     var folder: FolderEntity?
 
@@ -405,9 +399,9 @@ El árbol descomprimido vive en `Caches/<UUID>/` y se regenera si falta.
 - **Predeterminado (previsto para la fase de sync futura):** los binarios serán locales del dispositivo. La biblioteca mostrará cada documento en el dispositivo que lo importó. Los demás dispositivos verán solo los metadatos y mostrarán "No descargado en este dispositivo".
 - **Subida opt-in (prevista):** el usuario pulsará "Hacer disponible en mis otros dispositivos" en el menú contextual del documento. La app:
   1. Calculará `contentHash` si no estaba.
-  2. Subirá el binario como `CKAsset` en `DocumentItem.contentCKAsset` (almacenado mediante `@Attribute(.externalStorage)` de SwiftData).
-  3. Registrará `contentAssetUploadedAt: Date` (campo introducido con la fase de sync).
-- **Descarga (prevista):** en otro dispositivo, la biblioteca detectará un `contentCKAsset` no nulo para un documento ausente localmente y ofrecerá "Descargar" con tamaño y progreso.
+  2. Aplicará la migración de la fase de sync y subirá el binario como `CKAsset` mediante la nueva entidad de disponibilidad.
+  3. Registrará `contentAssetUploadedAt: Date` en esa entidad.
+- **Descarga (prevista):** en otro dispositivo, la biblioteca detectará un asset de disponibilidad migrado para un documento ausente localmente y ofrecerá "Descargar" con tamaño y progreso.
 - **Revocación (prevista):** "Eliminar de iCloud" borrará el `CKAsset` pero conservará los metadatos.
 
 En v1 **no existe** ninguna de estas cuatro rutas: ni predeterminado cross-device, ni subida opt-in, ni descarga, ni revocación. El menú contextual del documento no muestra esas opciones. v1 **no implementa** ninguna ruta de backup remoto, restauración manual ni exportación a un servidor propio.
@@ -423,8 +417,8 @@ Cada fase termina con criterios de aceptación ejecutables y medibles. Las fases
 | Tarea | Entregable concreto |
 | --- | --- |
 | Inicializar proyecto Xcode | Target iPadOS 26+; solo orientaciones iPad; **sin** capability iCloud, **sin** capability CloudKit, **sin** Background Modes (Remote Notifications); interfaz Liquid Glass |
-| Definir entidades | Los cinco archivos `@Model` compilan sin advertencias; el esquema es compatible con CloudKit por anticipación (sin atributos únicos, todas las relaciones opcionales o con valor por defecto), pero el contenedor **no** se conecta a ninguna base de datos CloudKit |
-| Contenedor | `ModelContainer` SwiftData **local** (sin `cloudKitDatabase:`); el `ModelConfiguration` no declara ninguna opción de CloudKit |
+| Definir entidades | Los cinco archivos `@Model` compilan sin advertencias; no usan atributos únicos, todas las relaciones son opcionales o con valor por defecto, y `DocumentItem.paginationModeRaw` empieza en `"horizontal"` |
+| Contenedor | `ModelContainer` SwiftData **local**; el `ModelConfiguration` no declara ninguna opción de sincronización remota |
 | Monitor de sync | **No existe en v1.** No se inicializa ningún `CloudSyncMonitor` ni equivalente; ningún código lo busca ni lo publica |
 | Shell de biblioteca | `LibraryGridView` muestra una carpeta y un documento de prueba |
 
@@ -432,7 +426,7 @@ Cada fase termina con criterios de aceptación ejecutables y medibles. Las fases
 
 1. `xcodebuild -scheme InSummary -destination 'generic/platform=iOS Simulator' build` finaliza sin advertencias relacionadas con el esquema de datos, y el binario resultante **no** incluye entitlements de iCloud, CloudKit ni `aps-environment` (push notifications).
 2. En un iPad real, crear una carpeta + documento persiste entre reinicios de la app **sin** red y **sin** sesión de iCloud iniciada.
-3. La app funciona completa (importación, lectura, anotación, post-its, exportación, biblioteca) con el dispositivo en modo avión.
+3. El shell de biblioteca crea y muestra una carpeta y un documento semilla, y ambos persisten localmente con el dispositivo en modo avión. La importación, lectura, anotación y exportación se validan en sus fases posteriores.
 4. Búsqueda en el código por `cloudKit`, `CKContainer`, `CKDatabase`, `CKAsset`, `NSPersistentCloudKitContainer`, `cloudKitDatabase`, `CloudSyncMonitor`, `RemoteNotification` devuelve **cero** ocurrencias en código de producto. (Las menciones en este documento de especificación no cuentan.)
 5. La app se instala y firma con un perfil personal / de desarrollo sin membresía de Apple Developer Program.
 
@@ -581,7 +575,7 @@ Cada fase termina con criterios de aceptación ejecutables y medibles. Las fases
 Estas quedan diferidas intencionadamente; no bloquean v1 pero se registran para que los futuros colaboradores sepan que existen.
 
 1. ¿Debería migrarse `lastReadLocator` a un tipo Swift `Codable` cuando SwiftData gane soporte nativo para enums (actualmente `Data` + JSON)?
-2. **Diferido a la fase de sincronización futura:** cuando SwiftData gane migración ligera más allá de lo que CloudKit permite, ¿debería moverse `contentCKAsset` a una entidad separada `DocumentAvailability` para reducir el tamaño del payload por registro? v1 no toma esta decisión; el campo permanece `nil` y reservado.
+2. **Diferido a la fase de sincronización futura:** ¿qué migración agregará la entidad de disponibilidad y su asset binario opt-in cuando se reactive la sincronización? v1 no incluye ese campo ni toma esta decisión.
 3. ¿Deberían almacenarse los dibujos de tinta por página lógica o por instantánea de viewport? Decisión actual: por página lógica en PDF, por "página" ordinal en MD con la limitación documentada, por segmento CFI en EPUB.
 4. ¿Debería el lector admitir carga de fuentes personalizadas más allá de la `Caveat-Regular.ttf` incrustada? Diferido — implicaciones de seguridad para archivos de fuente no confiables.
 5. **(Nueva)** ¿Cuál es la rúbrica exacta (entitlements, identifier de contenedor, esquema de despliegue) para reactivar la fase de sincronización cuando se decida retomarla? Diferida hasta que se obtenga membresía del Apple Developer Program.

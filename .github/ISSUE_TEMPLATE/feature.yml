@@ -1,0 +1,27 @@
+name: Feature
+description: Propose a product or engineering feature.
+title: "feat: "
+labels:
+  - type:feature
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: Describe the user-visible or technical outcome and its value.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Identify in-scope work, constraints, and explicit non-goals.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: List observable criteria that make the feature complete.
+    validations:
+      required: true

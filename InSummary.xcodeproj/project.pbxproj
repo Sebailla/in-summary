@@ -13,6 +13,10 @@
 		A100000000000000000000F4 /* PageAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000103 /* PageAnnotation.swift */; };
 		A100000000000000000000F5 /* TextHighlight.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000104 /* TextHighlight.swift */; };
 		A100000000000000000000F6 /* StickyNoteEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000105 /* StickyNoteEntity.swift */; };
+		A100000000000000000000F7 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000106 /* PersistenceController.swift */; };
+		A100000000000000000000F8 /* LibrarySeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000107 /* LibrarySeedService.swift */; };
+		A100000000000000000000F9 /* LibraryGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000108 /* LibraryGridView.swift */; };
+		A100000000000000000000FA /* PreviewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000109 /* PreviewContainer.swift */; };
 		A100000000000000000000FB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000110 /* Assets.xcassets */; };
 		A100000000000000000000FC /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000111 /* Preview Assets.xcassets */; };
 		A100000000000000000000T1 /* SchemaTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000200 /* SchemaTestSupport.swift */; };
@@ -21,6 +25,8 @@
 		A100000000000000000000T4 /* PageAnnotationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000203 /* PageAnnotationTests.swift */; };
 		A100000000000000000000T5 /* TextHighlightTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000204 /* TextHighlightTests.swift */; };
 		A100000000000000000000T6 /* StickyNoteEntityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000205 /* StickyNoteEntityTests.swift */; };
+		A100000000000000000000T7 /* LibrarySeedServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000206 /* LibrarySeedServiceTests.swift */; };
+		A100000000000000000000T8 /* PersistenceControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000207 /* PersistenceControllerTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +46,10 @@
 		A10000000000000000000103 /* PageAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageAnnotation.swift; sourceTree = "<group>"; };
 		A10000000000000000000104 /* TextHighlight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextHighlight.swift; sourceTree = "<group>"; };
 		A10000000000000000000105 /* StickyNoteEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickyNoteEntity.swift; sourceTree = "<group>"; };
+		A10000000000000000000106 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
+		A10000000000000000000107 /* LibrarySeedService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibrarySeedService.swift; sourceTree = "<group>"; };
+		A10000000000000000000108 /* LibraryGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryGridView.swift; sourceTree = "<group>"; };
+		A10000000000000000000109 /* PreviewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewContainer.swift; sourceTree = "<group>"; };
 		A10000000000000000000110 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A10000000000000000000111 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		A10000000000000000000112 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -49,6 +59,8 @@
 		A10000000000000000000203 /* PageAnnotationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageAnnotationTests.swift; sourceTree = "<group>"; };
 		A10000000000000000000204 /* TextHighlightTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextHighlightTests.swift; sourceTree = "<group>"; };
 		A10000000000000000000205 /* StickyNoteEntityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickyNoteEntityTests.swift; sourceTree = "<group>"; };
+		A10000000000000000000206 /* LibrarySeedServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibrarySeedServiceTests.swift; sourceTree = "<group>"; };
+		A10000000000000000000207 /* PersistenceControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceControllerTests.swift; sourceTree = "<group>"; };
 		A10000000000000000000300 /* InSummary.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InSummary.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000000000000000000301 /* InSummaryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = InSummaryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -85,6 +97,8 @@
 			children = (
 				A100000000000000000000G5 /* App */,
 				A100000000000000000000G6 /* Models */,
+				A100000000000000000000G7 /* Services */,
+				A100000000000000000000G8 /* Views */,
 				A100000000000000000000G9 /* Resources */,
 				A100000000000000000000GA /* Preview Content */,
 				A10000000000000000000112 /* Info.plist */,
@@ -101,6 +115,8 @@
 				A10000000000000000000203 /* PageAnnotationTests.swift */,
 				A10000000000000000000204 /* TextHighlightTests.swift */,
 				A10000000000000000000205 /* StickyNoteEntityTests.swift */,
+				A10000000000000000000206 /* LibrarySeedServiceTests.swift */,
+				A10000000000000000000207 /* PersistenceControllerTests.swift */,
 			);
 			path = InSummaryTests;
 			sourceTree = "<group>";
@@ -134,6 +150,22 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		A100000000000000000000G7 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A100000000000000000000GB /* Persistence */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A100000000000000000000G8 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A100000000000000000000GC /* Library */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		A100000000000000000000G9 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -148,6 +180,24 @@
 				A10000000000000000000111 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		A100000000000000000000GB /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000106 /* PersistenceController.swift */,
+				A10000000000000000000107 /* LibrarySeedService.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		A100000000000000000000GC /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000108 /* LibraryGridView.swift */,
+				A10000000000000000000109 /* PreviewContainer.swift */,
+			);
+			path = Library;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -249,6 +299,10 @@
 				A100000000000000000000F4 /* PageAnnotation.swift in Sources */,
 				A100000000000000000000F5 /* TextHighlight.swift in Sources */,
 				A100000000000000000000F6 /* StickyNoteEntity.swift in Sources */,
+				A100000000000000000000F7 /* PersistenceController.swift in Sources */,
+				A100000000000000000000F8 /* LibrarySeedService.swift in Sources */,
+				A100000000000000000000F9 /* LibraryGridView.swift in Sources */,
+				A100000000000000000000FA /* PreviewContainer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -262,6 +316,8 @@
 				A100000000000000000000T4 /* PageAnnotationTests.swift in Sources */,
 				A100000000000000000000T5 /* TextHighlightTests.swift in Sources */,
 				A100000000000000000000T6 /* StickyNoteEntityTests.swift in Sources */,
+				A100000000000000000000T7 /* LibrarySeedServiceTests.swift in Sources */,
+				A100000000000000000000T8 /* PersistenceControllerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

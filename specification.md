@@ -164,7 +164,6 @@ A library-based iPad application that lets a single user:
 | `Application Support/Thumbnails/<UUID>.png` | Library cover thumbnails | No |
 | `Caches/<UUID>/` | EPUB-extracted HTML/CSS/images | No (regenerable) |
 | SwiftData store (system location) | All entities below | **No** (local in v1; sync deferred) |
-| CloudKit `CKAsset` on `DocumentItem.contentCKAsset` | Opt-in book-binary sync | **Deferred**; the field is reserved in the schema but unused in v1 |
 
 ---
 
@@ -172,7 +171,7 @@ A library-based iPad application that lets a single user:
 
 ### 3.1 Canonical entities (authoritative SwiftData schema)
 
-These names and field names are the source of truth. The schema is **CloudKit-compatible by design** (no unique attributes, all relationships optional or defaulted) so the future sync phase does not require entity rewrites. **No entity is connected to a CloudKit database in v1.**
+These names and field names are the source of truth. The schema avoids unique attributes and keeps relationships optional or defaulted. **No entity is connected to a CloudKit database in v1**; reactivating future sync requires an explicit migration.
 
 ```swift
 @Model final class FolderEntity {
@@ -196,14 +195,9 @@ These names and field names are the source of truth. The schema is **CloudKit-co
     var lastReadLocator: Data = Data()       // JSON-encoded stable locator
     var lastReadPageIndex: Int = 0           // DISPLAY HINT only — see §3.4
     var totalPages: Int = 1                  // DISPLAY HINT only for reflowable
+    var paginationModeRaw: String = "horizontal" // "horizontal" | "vertical"
     var createdAt: Date = Date()
     var updatedAt: Date = Date()
-
-    // DEFERRED (future sync phase). Reserved in the schema so that
-    // introducing opt-in binary upload as a CKAsset does not force a
-    // migration. Stays nil and unused in v1.
-    @Attribute(.externalStorage)
-    var contentCKAsset: Data? = nil
 
     var folder: FolderEntity?
 
@@ -405,9 +399,9 @@ The unzipped tree lives in `Caches/<UUID>/` and is regenerated if missing.
 - **Default (planned for the future sync phase):** binaries will be device-local. The library will show each document on the device that imported it. Other devices will see metadata only and display "Not downloaded on this device".
 - **Opt-in upload (planned):** the user taps "Make available on my other devices" in the document's context menu. The app:
   1. Computes `contentHash` if not already present.
-  2. Uploads the binary as a `CKAsset` on `DocumentItem.contentCKAsset` (stored via SwiftData's `@Attribute(.externalStorage)`).
-  3. Records `contentAssetUploadedAt: Date` (field introduced with the sync phase).
-- **Download (planned):** on another device, the library detects a non-nil `contentCKAsset` for a document missing locally and offers "Download" with size and progress.
+  2. Applies the sync-phase migration and uploads the binary as a `CKAsset` through the new availability entity.
+  3. Records `contentAssetUploadedAt: Date` on that entity.
+- **Download (planned):** on another device, the library detects a migrated availability asset for a document missing locally and offers "Download" with size and progress.
 - **Revocation (planned):** "Remove from iCloud" deletes the `CKAsset` but keeps the metadata.
 
 In v1 **none** of these four paths exist: no default cross-device state, no opt-in upload, no download, no revocation. The document context menu does not show these options. v1 **does not implement** any remote backup path, manual restore, or export to a custom server.
@@ -423,8 +417,8 @@ Each phase ends with measurable, executable acceptance criteria. Phases are sequ
 | Task | Concrete deliverable |
 | --- | --- |
 | Initialize Xcode project | iPadOS 26+ target; iPad orientations only; **no** iCloud capability, **no** CloudKit capability, **no** Background Modes (Remote Notifications); Liquid Glass interface |
-| Define entities | All five `@Model` files compile without warnings; the schema is CloudKit-compatible by design (no unique attributes, all relationships optional or defaulted), but the container is **not** connected to any CloudKit database |
-| Container | **Local** SwiftData `ModelContainer` (no `cloudKitDatabase:`); the `ModelConfiguration` does not declare any CloudKit option |
+| Define entities | All five `@Model` files compile without warnings; they use no unique attributes, every relationship is optional or defaulted, and `DocumentItem.paginationModeRaw` starts as `"horizontal"` |
+| Container | **Local** SwiftData `ModelContainer`; the `ModelConfiguration` does not declare any remote-sync option |
 | Sync monitor | **Does not exist in v1.** No `CloudSyncMonitor` (or equivalent) is initialized; no code looks it up or publishes it |
 | Library shell | `LibraryGridView` shows a seed folder and seed document |
 
@@ -432,7 +426,7 @@ Each phase ends with measurable, executable acceptance criteria. Phases are sequ
 
 1. `xcodebuild -scheme InSummary -destination 'generic/platform=iOS Simulator' build` succeeds without data-schema warnings, and the resulting binary **does not** include iCloud, CloudKit, or `aps-environment` (push notifications) entitlements.
 2. On a real iPad, creating a folder + document persists across app restarts **without** a network and **without** an active iCloud session.
-3. The app runs end-to-end (import, read, annotate, sticky-note, export, library) with the device in airplane mode.
+3. The library shell creates and displays a seed folder and document, and both persist locally with the device in airplane mode. Import, reading, annotation, and export are validated in their later phases.
 4. A code search for `cloudKit`, `CKContainer`, `CKDatabase`, `CKAsset`, `NSPersistentCloudKitContainer`, `cloudKitDatabase`, `CloudSyncMonitor`, `RemoteNotification` returns **zero** matches in product code. (Mentions inside this specification document do not count.)
 5. The app installs and signs with a personal / development provisioning profile that does not require Apple Developer Program membership.
 
@@ -581,7 +575,7 @@ Each phase ends with measurable, executable acceptance criteria. Phases are sequ
 These are intentionally deferred; they do not block v1 but are recorded so future contributors know they exist.
 
 1. Should `lastReadLocator` be migrated to a `Codable` Swift type once SwiftData gains native enum support (currently `Data` + JSON)?
-2. **Deferred to the future sync phase:** when SwiftData gains lightweight migration support beyond what CloudKit allows, should `contentCKAsset` move to a separate `DocumentAvailability` entity to reduce per-record payload size? v1 does not decide this; the field remains `nil` and reserved.
+2. **Deferred to the future sync phase:** which migration will add the availability entity and its opt-in binary asset when synchronization is reactivated? v1 includes no such field and makes no decision.
 3. Should ink drawings be stored per logical page or per viewport snapshot? Current decision: per logical page for PDF, per ordinal "page" for MD with the documented limitation, per CFI segment for EPUB.
 4. Should the reader support custom font loading beyond the embedded `Caveat-Regular.ttf`? Deferred — security implications for untrusted font files.
 5. **(New)** What is the exact rubric (entitlements, container identifier, deployment scheme) for reactivating the sync phase when it is decided to resume? Deferred until Apple Developer Program membership is obtained.

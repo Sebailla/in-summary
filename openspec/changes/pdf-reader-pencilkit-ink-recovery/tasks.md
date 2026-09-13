@@ -42,7 +42,7 @@ The fixture is a hard dependency of every test in Phase 2 and is
 isolated into its own PR so every later PR can review reader behaviour
 without fixture churn.
 
-- [ ] 1.1 RED — add `InSummaryTests/Support/PDFFixtureGeneratorTests.swift`
+- [x] 1.1 RED — add `InSummaryTests/Support/PDFFixtureGeneratorTests.swift`
       (alongside the generator) covering: two consecutive calls to
       `generateFixture() -> Data` produce byte-for-byte identical bytes;
       `PDFDocument(data:).pageCount == 20`; each page renders to a
@@ -50,7 +50,7 @@ without fixture churn.
       `fixtureContentHash` constant equals the SHA-256 of the output.
       Run against the baseline and confirm the suite is red.
       <!-- sdd-owner: implementation -->
-- [ ] 1.2 GREEN — add `InSummaryTests/Support/PDFFixtureGenerator.swift`
+- [x] 1.2 GREEN — add `InSummaryTests/Support/PDFFixtureGenerator.swift`
       exposing `generateFixture() -> Data`, `fixtureContentHash: String`,
       and `fixturePageCount: Int`. The generator uses `PDFKit`
       (`UIGraphicsPDFRenderer` is acceptable; the chosen API must be
@@ -58,21 +58,21 @@ without fixture churn.
       page index in the bottom-right corner, a deterministic geometric
       pattern, and one block of CC0 text from a frozen constant.
       <!-- sdd-owner: implementation -->
-- [ ] 1.3 GREEN — add `InSummary/Resources/Fixtures/sample-bundle.pdf`
+- [x] 1.3 GREEN — add `InSummary/Resources/Fixtures/sample-bundle.pdf`
       (binary) by running the generator locally. The exact path is
       canonical and must not vary.
       <!-- sdd-owner: implementation -->
-- [ ] 1.4 GREEN — add
+- [x] 1.4 GREEN — add
       `InSummary/Resources/Fixtures/SAMPLE-BUNDLE-LICENSE.md` with the
       CC0 1.0 Universal dedication, the generator SHA-256, the page
       count, and a one-line "project-authored" assertion.
       <!-- sdd-owner: implementation -->
-- [ ] 1.5 GREEN — wire `InSummary/Resources/Fixtures/sample-bundle.pdf`
+- [x] 1.5 GREEN — wire `InSummary/Resources/Fixtures/sample-bundle.pdf`
       into `InSummary.xcodeproj` *Copy Bundle Resources* phase on the
       `InSummary` target. Confirm the file appears in the build output
       bundle under the same relative path.
       <!-- sdd-owner: implementation -->
-- [ ] 1.6 GREEN — add
+- [x] 1.6 GREEN — add
       `InSummaryTests/Fixtures/SampleBundleFixtureTests.swift` asserting:
       `Bundle.main.url(forResource: "sample-bundle", withExtension:
       "pdf")` resolves and is non-nil; the file is non-empty; the file
@@ -80,12 +80,12 @@ without fixture churn.
       generator output's SHA-256; `PDFDocument(url:).pageCount == 20`.
       Run the suite and confirm green.
       <!-- sdd-owner: implementation -->
-- [ ] 1.7 REFACTOR — collapse duplicated generator configuration into a
+- [x] 1.7 REFACTOR — collapse duplicated generator configuration into a
       single private helper; keep the page-by-page draw in one place;
       confirm two consecutive runs of the generator still produce
       byte-identical bytes.
       <!-- sdd-owner: implementation -->
-- [ ] 1.8 VERIFY — run the grep guards across the PR diff and confirm
+- [x] 1.8 VERIFY — run the grep guards across the PR diff and confirm
       zero matches for the blocked-substring list (especially
       `NSPersistentCloudKitContainer`, `URLSession`, `.fileImporter`,
       `https?://`). Run

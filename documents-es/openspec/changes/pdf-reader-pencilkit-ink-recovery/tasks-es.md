@@ -48,7 +48,7 @@ El fixture es una dependencia dura de cada prueba de la Fase 2 y se
 aísla en su propio PR para que cada PR posterior pueda revisar el
 comportamiento del lector sin ruido de fixture.
 
-- [ ] 1.1 ROJO — añadir
+- [x] 1.1 ROJO — añadir
       `InSummaryTests/Support/PDFFixtureGeneratorTests.swift`
       (junto al generador) cubriendo: dos llamadas consecutivas a
       `generateFixture() -> Data` producen bytes byte a byte
@@ -58,7 +58,7 @@ comportamiento del lector sin ruido de fixture.
       salida. Ejecutar contra la línea base y confirmar que la suite
       está en rojo.
       <!-- sdd-owner: implementation -->
-- [ ] 1.2 VERDE — añadir
+- [x] 1.2 VERDE — añadir
       `InSummaryTests/Support/PDFFixtureGenerator.swift` exponiendo
       `generateFixture() -> Data`, `fixtureContentHash: String` y
       `fixturePageCount: Int`. El generador usa `PDFKit`
@@ -68,22 +68,22 @@ comportamiento del lector sin ruido de fixture.
       patrón geométrico determinista y un bloque de texto CC0
       extraído de una constante congelada.
       <!-- sdd-owner: implementation -->
-- [ ] 1.3 VERDE — añadir `InSummary/Resources/Fixtures/sample-bundle.pdf`
+- [x] 1.3 VERDE — añadir `InSummary/Resources/Fixtures/sample-bundle.pdf`
       (binario) ejecutando el generador localmente. La ruta exacta es
       canónica y no debe variar.
       <!-- sdd-owner: implementation -->
-- [ ] 1.4 VERDE — añadir
+- [x] 1.4 VERDE — añadir
       `InSummary/Resources/Fixtures/SAMPLE-BUNDLE-LICENSE.md` con la
       dedicación CC0 1.0 Universal, el SHA-256 del generador, el
       conteo de páginas y una línea de "autoral del proyecto".
       <!-- sdd-owner: implementation -->
-- [ ] 1.5 VERDE — cablear `InSummary/Resources/Fixtures/sample-bundle.pdf`
+- [x] 1.5 VERDE — cablear `InSummary/Resources/Fixtures/sample-bundle.pdf`
       en la fase *Copy Bundle Resources* de `InSummary.xcodeproj`
       sobre el objetivo `InSummary`. Confirmar que el archivo aparece
       en el bundle de salida de la compilación bajo la misma ruta
       relativa.
       <!-- sdd-owner: implementation -->
-- [ ] 1.6 VERDE — añadir
+- [x] 1.6 VERDE — añadir
       `InSummaryTests/Fixtures/SampleBundleFixtureTests.swift`
       afirmando: `Bundle.main.url(forResource: "sample-bundle",
       withExtension: "pdf")` resuelve y no es `nil`; el archivo no
@@ -92,13 +92,13 @@ comportamiento del lector sin ruido de fixture.
       en proceso; `PDFDocument(url:).pageCount == 20`. Ejecutar la
       suite y confirmar verde.
       <!-- sdd-owner: implementation -->
-- [ ] 1.7 REFACTOR — colapsar la configuración duplicada del
+- [x] 1.7 REFACTOR — colapsar la configuración duplicada del
       generador en un único helper privado; mantener el dibujo
       página por página en un único lugar; confirmar que dos
       ejecuciones consecutivas del generador siguen produciendo bytes
       byte a byte idénticos.
       <!-- sdd-owner: implementation -->
-- [ ] 1.8 VERIFICAR — ejecutar las guardas de grep sobre el diff del
+- [x] 1.8 VERIFICAR — ejecutar las guardas de grep sobre el diff del
       PR y confirmar cero coincidencias para la lista de subcadenas
       bloqueadas (especialmente `NSPersistentCloudKitContainer`,
       `URLSession`, `.fileImporter`, `https?://`). Ejecutar

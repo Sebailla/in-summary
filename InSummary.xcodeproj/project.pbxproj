@@ -31,8 +31,11 @@
 		A100000000000000000000TA /* Support/PDFFixtureGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000209 /* Support/PDFFixtureGenerator.swift */; };
 		A100000000000000000000TB /* sample-bundle.pdf in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000210 /* sample-bundle.pdf */; };
 A100000000000000000000TC /* sample-bundle.pdf in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000210 /* sample-bundle.pdf */; };
-		A100000000000000000000TD /* Fixtures/SampleBundleFixtureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000211 /* Fixtures/SampleBundleFixtureTests.swift */; };
-    /* End PBXBuildFile section */
+A100000000000000000000TD /* Fixtures/SampleBundleFixtureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000211 /* Fixtures/SampleBundleFixtureTests.swift */; };
+		A100000000000000000000TE /* PDFReaderCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000212 /* PDFReaderCoordinatorTests.swift */; };
+		A100000000000000000000TF /* PDFReaderError.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000213 /* PDFReaderError.swift */; };
+		A100000000000000000000TG /* PDFReaderCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000214 /* PDFReaderCoordinator.swift */; };
+            /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		A100000000000000000000D2 /* PBXContainerItemProxy */ = {
@@ -70,6 +73,9 @@ A100000000000000000000TC /* sample-bundle.pdf in Resources */ = {isa = PBXBuildF
 		A10000000000000000000209 /* Support/PDFFixtureGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Support/PDFFixtureGenerator.swift"; sourceTree = "<group>"; };
 A10000000000000000000210 /* sample-bundle.pdf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sample-bundle.pdf; sourceTree = "<group>"; };
 		A10000000000000000000211 /* Fixtures/SampleBundleFixtureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Fixtures/SampleBundleFixtureTests.swift"; sourceTree = "<group>"; };
+		A10000000000000000000212 /* PDFReaderCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFReaderCoordinatorTests.swift; sourceTree = "<group>"; };
+		A10000000000000000000213 /* PDFReaderError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFReaderError.swift; sourceTree = "<group>"; };
+		A10000000000000000000214 /* PDFReaderCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFReaderCoordinator.swift; sourceTree = "<group>"; };
 		A10000000000000000000300 /* InSummary.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InSummary.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000000000000000000301 /* InSummaryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = InSummaryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -129,6 +135,7 @@ A10000000000000000000210 /* sample-bundle.pdf */ = {isa = PBXFileReference; last
 				A10000000000000000000208 /* Support/PDFFixtureGeneratorTests.swift */,
 				A10000000000000000000209 /* Support/PDFFixtureGenerator.swift */,
 				A10000000000000000000211 /* Fixtures/SampleBundleFixtureTests.swift */,
+				A10000000000000000000212 /* PDFReaderCoordinatorTests.swift */,
 			);
 			path = InSummaryTests;
 			sourceTree = "<group>";
@@ -166,6 +173,7 @@ A10000000000000000000210 /* sample-bundle.pdf */ = {isa = PBXFileReference; last
 			isa = PBXGroup;
 			children = (
 				A100000000000000000000GB /* Persistence */,
+				A100000000000000000000GE /* PDFEngine */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -202,6 +210,15 @@ A10000000000000000000210 /* sample-bundle.pdf */ = {isa = PBXFileReference; last
 				A10000000000000000000107 /* LibrarySeedService.swift */,
 			);
 			path = Persistence;
+			sourceTree = "<group>";
+		};
+		A100000000000000000000GE /* PDFEngine */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000213 /* PDFReaderError.swift */,
+				A10000000000000000000214 /* PDFReaderCoordinator.swift */,
+			);
+			path = PDFEngine;
 			sourceTree = "<group>";
 		};
 		A100000000000000000000GC /* Library */ = {
@@ -334,6 +351,8 @@ A10000000000000000000210 /* sample-bundle.pdf */ = {isa = PBXFileReference; last
 				A100000000000000000000F8 /* LibrarySeedService.swift in Sources */,
 				A100000000000000000000F9 /* LibraryGridView.swift in Sources */,
 				A100000000000000000000FA /* PreviewContainer.swift in Sources */,
+				A100000000000000000000TF /* PDFReaderError.swift in Sources */,
+				A100000000000000000000TG /* PDFReaderCoordinator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -352,6 +371,7 @@ A10000000000000000000210 /* sample-bundle.pdf */ = {isa = PBXFileReference; last
 A100000000000000000000T9 /* Support/PDFFixtureGeneratorTests.swift in Sources */,
 				A100000000000000000000TA /* Support/PDFFixtureGenerator.swift in Sources */,
 				A100000000000000000000TD /* Fixtures/SampleBundleFixtureTests.swift in Sources */,
+				A100000000000000000000TE /* PDFReaderCoordinatorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -101,7 +101,7 @@ without fixture churn.
 review in isolation. It targets PR #1 because the fixture must exist
 before the coordinator can run its red-first tests.
 
-- [ ] 2.1 RED — add
+- [x] 2.1 RED — add
       `InSummaryTests/PDFReaderCoordinatorTests.swift` covering: the
       coordinator loads the bundled fixture; horizontal mode sets
       `displayMode = .singlePage` + `displayDirection = .horizontal`
@@ -118,29 +118,33 @@ before the coordinator can run its red-first tests.
       `.unsupportedDocument(reason:)`. Run against the baseline and
       confirm red.
       <!-- sdd-owner: implementation -->
-- [ ] 2.2 GREEN — add
+- [x] 2.2 GREEN — add
       `InSummary/Services/PDFEngine/PDFReaderError.swift` with typed
       errors: `fixtureMissing(resource:)`, `fixtureUnreadable`,
       `unsupportedDocument(reason:)`, `paginationSaveFailed(underlying:)`.
       <!-- sdd-owner: implementation -->
-- [ ] 2.3 GREEN — add
+- [x] 2.3 GREEN — add
       `InSummary/Services/PDFEngine/PDFReaderCoordinator.swift`
       (`@MainActor`, no `PencilKit` import, no public `SwiftData` model
       types beyond the existing `DocumentItem` reference) to turn the
       new tests green.
       <!-- sdd-owner: implementation -->
-- [ ] 2.4 GREEN — wire the two new files into `InSummary.xcodeproj`
-      *Sources* phase on the `InSummary` target.
+- [x] 2.4 GREEN — wire the two new files into `InSummary.xcodeproj`
+      *Sources* phase on the `InSummary` target. Already delivered
+      alongside task 2.3; see the `apply-progress.md` Task 2.3 entry
+      for the exact `PBXBuildFile` IDs (`A100000000000000000000TF`
+      and `A100000000000000000000TG`) in the production
+      `PBXSourcesBuildPhase` (`A100000000000000000000B1`).
       <!-- sdd-owner: implementation -->
-- [ ] 2.5 TRIANGULATE — add a test asserting that `setPaginationMode`
+- [x] 2.5 TRIANGULATE — add a test asserting that `setPaginationMode`
       calls `modelContext.save()` and that the persisted row's
       `updatedAt` advances while every other field stays equal.
       <!-- sdd-owner: implementation -->
-- [ ] 2.6 REFACTOR — keep the coordinator free of `PencilKit` and any
+- [x] 2.6 REFACTOR — keep the coordinator free of `PencilKit` and any
       `SwiftData` model imports beyond `DocumentItem`; collapse
       duplicated fixture-URL lookup into a single private helper.
       <!-- sdd-owner: implementation -->
-- [ ] 2.7 VERIFY — run
+- [x] 2.7 VERIFY — run
       `xcodebuild test -scheme InSummary -destination 'platform=iOS Simulator,name=iPad Pro 13-inch (M4),OS=26.0' -only-testing:InSummaryTests/PDFReaderCoordinatorTests`
       and confirm green. Run the grep guards scoped to
       `InSummary/Services/PDFEngine/`:

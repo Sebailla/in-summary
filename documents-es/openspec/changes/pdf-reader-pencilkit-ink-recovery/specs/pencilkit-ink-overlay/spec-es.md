@@ -16,6 +16,16 @@ ello sin introducir notas adhesivas, resaltados semánticos, el modo
 de herramienta borrador, un almacén paralelo en archivos en disco ni
 ninguna capacidad remota.
 
+La igualdad byte a byte entre el `drawingData` almacenado y el
+`drawing.dataRepresentation()` del lienzo se afirma únicamente en el
+límite de persistencia (lado de escritura). Como decodificar y luego
+re-codificar un `PKDrawing` puede canonizar su archivo, el contrato
+de reproducción en la UI preserva la semántica del dibujo y no la
+igualdad byte a byte: un lienzo reconstruido a partir de
+`PKDrawing(data: drawingData)` renderiza los trazos que el lector
+dibujó, pero su `drawing.dataRepresentation()` PUEDE diferir de los
+bytes almacenados.
+
 La capa es un `UIViewRepresentable` alrededor de `PKCanvasView`. El
 `PDFPageChangeObserver` es su compañero que dirige el ciclo de
 guardado/carga. Ambos viven bajo
@@ -45,20 +55,23 @@ lienzo.
   exactamente en uno por gesto de arrastre
 - **Y** `canvasViewDrawingDidChange` DEBE dispararse.
 
-### Requisito: Highlighter como herramienta predeterminada
+### Requisito: La herramienta predeterminada es un marker amarillo translúcido
 
 La capa DEBE tener como valor predeterminado
-`PKInkingTool(.highlighter, ...)` para que lo primero que vea el
-lector al tomar el Pencil sea un highlighter, no un bolígrafo. La
+`PKInkingTool(.marker, color: <PKInkingColor amarillo translúcido con
+alpha ≤ 0,5>, width: <ancho del marker>)`. Este es el análogo
+canónico del highlighter en iOS 26 porque
+`PKInkingTool.InkType.highlighter` no está expuesto en iOS 26. La
 herramienta predeterminada DEBE aplicarse en `makeUIView` y DEBE
 persistir entre reproducciones desde un dibujo almacenado.
 
-#### Escenario: La herramienta predeterminada es el highlighter en un lienzo en blanco
+#### Escenario: La herramienta predeterminada es un marker amarillo translúcido en un lienzo en blanco
 
 - **CUANDO** la capa se monta contra un `PageAnnotation` cuyo
   `drawingData == nil` o un `PKDrawing` vacío
 - **ENTONCES** la herramienta de tinta del `PKCanvasView` subyacente
-  DEBE ser una `PKInkingTool` con `InkType.highlighter`.
+  DEBE ser una `PKInkingTool` con `InkType.marker` cuyo
+  `PKInkingColor` sea amarillo translúcido con alpha ≤ 0,5.
 
 #### Escenario: La herramienta persiste entre reproducciones
 
@@ -66,7 +79,8 @@ persistir entre reproducciones desde un dibujo almacenado.
   `PageAnnotation.drawingData`
 - **ENTONCES** la herramienta de tinta del `PKCanvasView`
   subyacente DEBE seguir siendo una `PKInkingTool` con
-  `InkType.highlighter`.
+  `InkType.marker` cuyo `PKInkingColor` sea amarillo translúcido con
+  alpha ≤ 0,5.
 
 ### Requisito: Reproducir el dibujo almacenado al cargar la página
 
@@ -77,14 +91,19 @@ de `PageAnnotation` para ese índice de página, la capa DEBE hacer
 lazy-upsert de una contra el `DocumentItem` enlazado y tratar la
 página como en blanco.
 
-#### Escenario: Un dibujo no vacío se reproduce byte a byte
+#### Escenario: Un dibujo no vacío se reproduce con la semántica preservada
 
 - **CUANDO** existe un `PageAnnotation` para la página actual con un
   `drawingData` no vacío
 - **ENTONCES** la capa DEBE reemplazar el dibujo del `PKCanvasView`
   subyacente con `PKDrawing(data: drawingData!)`
-- **Y** el `drawing.dataRepresentation()` del lienzo DEBE coincidir
-  byte a byte con el `drawingData` almacenado.
+- **Y** el `PKDrawing.strokes` del lienzo DEBE renderizar los trazos
+  codificados por el `drawingData` almacenado
+- **Y** el `drawing.dataRepresentation()` del lienzo PUEDE diferir
+  del `drawingData` almacenado porque decodificar y luego
+  re-codificar un `PKDrawing` puede canonizar su archivo; la
+  igualdad byte a byte se afirma únicamente en el límite de
+  persistencia antes de la reproducción, no después.
 
 #### Escenario: Una anotación ausente es un lienzo en blanco
 
@@ -128,29 +147,48 @@ almacén paralelo en archivos en disco.
 - **Y** los bytes persistidos con anterioridad DEBEN permanecer
   intactos en disco.
 
-### Requisito: Round-trip byte a byte entre páginas
+### Requisito: El round-trip entre páginas preserva la semántica del dibujo
 
 El `PDFPageChangeObserver` compañero de la capa DEBE capturar los
 bytes de la página saliente desde el lienzo mediante un closure
-inyectado, persistirlos en el `PageAnnotation` saliente, cargar el
-`PageAnnotation` entrante para `(documentID, pageIndex)` y pedir a
-la capa que ejecute `activate(pageIndex:)`.
+inyectado en el límite de persistencia, persistirlos en el
+`PageAnnotation` saliente, cargar el `PageAnnotation` entrante para
+`(documentID, pageIndex)` y pedir a la capa que ejecute
+`activate(pageIndex:)`. La igualdad byte a byte se afirma únicamente
+en el límite de persistencia; como decodificar y luego re-codificar un
+`PKDrawing` puede canonizar su archivo, la ruta de reproducción
+preserva la semántica del dibujo y no la igualdad byte a byte entre el
+`drawing.dataRepresentation()` del lienzo tras la reproducción y el
+`drawingData` almacenado.
 
 #### Escenario: El dibujo sobrevive a un round-trip entre páginas
 
 - **CUANDO** el lector dibuja en la página 1, navega a la página 2,
   dibuja en la página 2 y luego vuelve a la página 1
-- **ENTONCES** el `PKDrawing.dataRepresentation()` de la página 1
-  DEBE ser byte a byte idéntico al dibujo que el lector hizo
-  originalmente
-- **Y** el dibujo de la página 2 TAMBIÉN DEBE preservarse.
+- **ENTONCES** el `PKCanvasView` de la página 1 DEBE renderizar
+  trazos semánticamente equivalentes a los que el lector dibujó
+  originalmente en la página 1
+- **Y** el `PKCanvasView` de la página 2 TAMBIÉN DEBE renderizar
+  trazos semánticamente equivalentes a los dibujados allí
+- **Y** el `drawing.dataRepresentation()` del lienzo tras la
+  reproducción PUEDE diferir del `drawingData` almacenado porque
+  decodificar y luego re-codificar un `PKDrawing` puede canonizar
+  su archivo; la igualdad byte a byte se afirma únicamente en el
+  límite de persistencia antes de cada reproducción.
 
 #### Escenario: Cinco ciclos de navegación son estables
 
 - **CUANDO** el lector alterna entre las páginas 1 y 2 cinco veces
-- **ENTONCES** los payloads `PKDrawing.dataRepresentation()` de
-  ambas páginas DEBEN permanecer byte a byte iguales a los últimos
-  valores persistidos.
+- **ENTONCES** las filas `pageAnnotation.drawingData` de ambas
+  páginas DEBEN permanecer iguales a los últimos bytes persistidos
+  en el momento de escritura
+- **Y** los lienzos de ambas páginas DEBEN renderizar trazos
+  semánticamente equivalentes a los dibujos almacenados
+- **Y** el `drawing.dataRepresentation()` del lienzo tras la
+  reproducción PUEDE diferir del `drawingData` almacenado porque
+  decodificar y luego re-codificar un `PKDrawing` puede canonizar
+  su archivo; la igualdad byte a byte se afirma únicamente en el
+  límite de persistencia antes de la reproducción.
 
 ### Requisito: Coalescencia por valor en las notificaciones de cambio de página
 

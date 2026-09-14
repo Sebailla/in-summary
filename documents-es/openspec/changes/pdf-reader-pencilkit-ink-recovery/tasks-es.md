@@ -195,60 +195,73 @@ La capa y el observador dependen de la señal de cambio de página del
 coordinador (PR #2) y del fixture empaquetado (PR #1). Apuntan al
 PR #2 para que la cadena permanezca lineal.
 
-- [ ] 3.1 ROJO — añadir
+- [x] 3.1 ROJO — añadir
       `InSummaryTests/PencilCanvasOverlayTests.swift` cubriendo:
       `drawingPolicy == .pencilOnly`; la herramienta predeterminada
-      es el highlighter (`PKInkingTool.InkType.highlighter`); la
-      reproducción es byte a byte cuando el `PageAnnotation`
-      proporcionado tiene `drawingData` no vacío; un `PageAnnotation`
+      es un marker amarillo translúcido (`PKInkingTool.InkType.marker`
+      con un `PKInkingColor` amarillo translúcido, alpha ≤ 0,5) —
+      `PKInkingTool.InkType.highlighter` no está expuesto en iOS 26;
+      al reproducir, cuando el `PageAnnotation` proporcionado tiene
+      `drawingData` no vacío, el lienzo renderiza trazos
+      semánticamente equivalentes a los trazos almacenados (la
+      igualdad byte a byte se afirma en el límite de persistencia
+      antes de la reproducción, no después); un `PageAnnotation`
       ausente activa el lazy-upsert y la capa se renderiza en blanco;
-      limpiar la capa persiste bytes vacíos; un fallo de decodificación
-      fija `lastError = .drawingDecodeFailed`, renderiza la capa
-      vacía y deja intacto el `drawingData` ilegible en la fila.
-      Ejecutar contra la línea base y confirmar rojo.
+      limpiar la capa persiste bytes vacíos; un fallo de
+      decodificación fija `lastError = .drawingDecodeFailed`,
+      renderiza la capa vacía y deja intacto el `drawingData`
+      ilegible en la fila. Ejecutar contra la línea base y
+      confirmar rojo.
       <!-- sdd-owner: implementation -->
-- [ ] 3.2 VERDE — añadir
+- [x] 3.2 VERDE — añadir
       `InSummary/Services/AnnotationEngine/AnnotationError.swift` con
       errores tipados: `drawingDecodeFailed`,
       `drawingPersistenceFailed(underlying:)`.
       <!-- sdd-owner: implementation -->
-- [ ] 3.3 VERDE — añadir
+- [x] 3.3 VERDE — añadir
       `InSummary/Services/AnnotationEngine/PencilCanvasOverlay.swift`
       (`UIViewRepresentable` envolviendo `PKCanvasView`, `@MainActor`,
       sin `import PDFKit`, sin imports públicos de modelo `SwiftData`
       más allá de la referencia existente a `PageAnnotation`) para
       poner en verde las pruebas nuevas.
       <!-- sdd-owner: implementation -->
-- [ ] 3.4 ROJO — añadir
+- [x] 3.4 ROJO — añadir
       `InSummaryTests/PDFPageChangeObserverTests.swift` cubriendo:
-      el round-trip preserva payloads `PKDrawing` byte a byte entre
-      páginas 1 → 2 → 1; cinco ciclos de navegación son estables; el
-      observador descarta notificaciones cuyo `currentPageIndex`
-      coincide con el último índice observado (coalescencia por
-      valor); una re-inicialización del coordinador conserva los
-      dibujos almacenados; un fallo de guardado expone
+      el round-trip preserva la semántica del dibujo entre páginas
+      1 → 2 → 1 — el lienzo tras la reproducción renderiza trazos
+      semánticamente equivalentes a los dibujados originalmente y
+      las filas `pageAnnotation.drawingData` permanecen iguales a
+      los bytes capturados en el límite de persistencia; cinco
+      ciclos de navegación son estables; el observador descarta
+      notificaciones cuyo `currentPageIndex` coincide con el último
+      índice observado (coalescencia por valor); una
+      re-inicialización del coordinador conserva los dibujos
+      almacenados; un fallo de guardado expone
       `AnnotationError.drawingPersistenceFailed(underlying:)` y
-      `lastObservedPageIndex` **no** se muta ante un fallo. Ejecutar
-      contra la línea base y confirmar rojo.
+      `lastObservedPageIndex` **no** se muta ante un fallo. La
+      igualdad byte a byte se afirma únicamente en el límite de
+      persistencia; el `drawing.dataRepresentation()` del lienzo
+      tras la reproducción PUEDE diferir del `drawingData`
+      almacenado. Ejecutar contra la línea base y confirmar rojo.
       <!-- sdd-owner: implementation -->
-- [ ] 3.5 VERDE — añadir
+- [x] 3.5 VERDE — añadir
       `InSummary/Services/AnnotationEngine/PDFPageChangeObserver.swift`
       (`final class` `@MainActor`, sin `import PDFKit`, sin imports
       públicos de modelo `SwiftData` más allá de `DocumentItem.id` y
       del `PageAnnotation` proporcionado) para poner en verde las
       pruebas nuevas.
       <!-- sdd-owner: implementation -->
-- [ ] 3.6 VERDE — cablear los tres archivos nuevos en la fase
+- [x] 3.6 VERDE — cablear los tres archivos nuevos en la fase
       *Sources* de `InSummary.xcodeproj` sobre el objetivo
       `InSummary`.
       <!-- sdd-owner: implementation -->
-- [ ] 3.7 REFACTOR — colapsar la configuración duplicada de la capa
+- [x] 3.7 REFACTOR — colapsar la configuración duplicada de la capa
       en un único helper privado; mantener la configuración de
       `PKCanvasView` en un único lugar; llevar la suscripción a
       `NotificationCenter` a la capa de vista (añadida en el PR #4)
       para que el observador siga siendo testeable de forma aislada.
       <!-- sdd-owner: implementation -->
-- [ ] 3.8 VERIFICAR — ejecutar
+- [x] 3.8 VERIFICAR — ejecutar
       `xcodebuild test -scheme InSummary -destination 'platform=iOS Simulator,name=iPad Pro 13-inch (M4),OS=26.0' -only-testing:InSummaryTests/PencilCanvasOverlayTests -only-testing:InSummaryTests/PDFPageChangeObserverTests`
       y confirmar verde. Reversión: eliminar los archivos fuente, el
       archivo de errores, las pruebas y las entradas PBX de *Sources*
@@ -297,10 +310,11 @@ observador). Apunta al PR #3 porque la cadena debe permanecer lineal
 - [ ] 4.6 ROJO — añadir `InSummaryTests/ReaderIntegrationTests.swift`
       cubriendo: abrir el fixture empaquetado, navegar entre páginas,
       dibujar en página 1 y página 2, volver a página 1 y afirmar
-      que `PKDrawing.dataRepresentation()` se preserva byte a byte en
-      ambas páginas; round-trip de preferencia a través de la
-      reapertura del documento. Ejecutar contra la línea base y
-      confirmar rojo.
+      que los trazos se preservan semánticamente en ambas páginas (la
+      igualdad byte a byte se afirma en el límite de persistencia
+      antes de cada reproducción, no después); round-trip de
+      preferencia a través de la reapertura del documento. Ejecutar
+      contra la línea base y confirmar rojo.
       <!-- sdd-owner: implementation -->
 - [ ] 4.7 VERDE — cablear los dos archivos nuevos en la fase
       *Sources* de `InSummary.xcodeproj` sobre el objetivo

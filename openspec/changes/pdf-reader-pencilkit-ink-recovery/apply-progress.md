@@ -12,11 +12,13 @@
 **Status**: ✅ Red established. Generator intentionally absent.
 
 **Files added**
+
 - `InSummaryTests/Support/PDFFixtureGeneratorTests.swift` (new)
 - `InSummary/Support/.gitkeep` — *not created* (the directory was created
   by the test file itself; no placeholder needed).
 
 **Test-infrastructure edit (required for RED to be observable)**
+
 - `InSummary.xcodeproj/project.pbxproj` — added a `PBXBuildFile`
   (`A100000000000000000000T9`), `PBXFileReference`
   (`A10000000000000000000208`, path `Support/PDFFixtureGeneratorTests.swift`),
@@ -125,6 +127,7 @@ other compile error or assertion failure is present after switching the
 | 1.1 | `InSummaryTests/Support/PDFFixtureGeneratorTests.swift` | Unit (`XCTestCase`) | N/A (new file) | ✅ Written — compile fails on 7 unresolved `PDFFixtureGenerator` references | ⏳ Pending task 1.2 (generator implementation) | ⏳ Pending task 1.2/1.6 | ⏳ Pending task 1.7 |
 
 ### Test summary so far
+
 - **Tests written**: 5 (`PDFFixtureGeneratorTests`)
 - **Tests passing**: 0 (RED — pending GREEN in task 1.2)
 - **Layers used**: Unit (5)
@@ -132,6 +135,7 @@ other compile error or assertion failure is present after switching the
 - **Pure functions created**: none in this slice (test-only)
 
 ### Deviations / notes
+
 1. **Destination substitution.** The exact destination
    `iPad Pro 13-inch (M4),OS=26.0` is not installed on this host. The
    `iOS 26.0` runtime is unavailable; only `iOS 26.5` is. The
@@ -152,6 +156,7 @@ other compile error or assertion failure is present after switching the
    only the expected `PDFFixtureGenerator` resolution failures.
 
 ### Out of scope (still deferred)
+
 - 1.2 GREEN — `PDFFixtureGenerator.swift` and its public surface
   (`generateFixture() -> Data`, `fixtureContentHash: String`,
   `fixturePageCount: Int`).
@@ -172,10 +177,12 @@ behaviour-correct run after one diagnostic compile cycle (see deviations
 below).
 
 **Files added**
+
 - `InSummaryTests/Support/PDFFixtureGenerator.swift` (new, `public enum`
   namespace exposing the canonical API surface).
 
 **Files modified**
+
 - `InSummary.xcodeproj/project.pbxproj` — added a `PBXBuildFile`
   (`A100000000000000000000TA`), `PBXFileReference`
   (`A10000000000000000000209`, path `Support/PDFFixtureGenerator.swift`),
@@ -196,6 +203,7 @@ below).
 | `static func generateFixture() -> Data` | returns `cachedFixture` | Byte-for-byte identical on every call inside the same process. |
 
 **Implementation summary**
+
 - Public `enum` namespace (no instances). No `InkDrawingStore`,
   `PDFReaderCoordinator`, `PencilKit`, or `SwiftData` symbols imported —
   the spec §pdf-fixture "Local-only access" guard is satisfied.
@@ -284,6 +292,7 @@ regress any other slice.
 | 1.2 | `InSummaryTests/Support/PDFFixtureGeneratorTests.swift` (verified) | Unit (`XCTestCase`) | N/A (no existing file modified; pbxproj wiring is test-target infrastructure) | (See 1.1) | ✅ First run after compile-fix cycle — 5/5 tests green on `iPad Pro 13-inch (M5),OS=26.5`; full 61-test suite also green | ⏳ Pending task 1.6 | ⏳ Pending task 1.7 |
 
 ### Test summary so far (Slice 1 cumulative)
+
 - **Tests written**: 5 (`PDFFixtureGeneratorTests`)
 - **Tests passing**: 5 (GREEN — task 1.2 closed)
 - **Layers used**: Unit (5)
@@ -292,7 +301,7 @@ regress any other slice.
 
 ### Deviations / notes (task 1.2)
 
-4. **`kCGPDFContextCreationDate` / `kCGPDFContextModDate` are macOS-only.**
+1. **`kCGPDFContextCreationDate` / `kCGPDFContextModDate` are macOS-only.**
    The first compile of the generator surfaced
    `error: cannot find 'kCGPDFContextCreationDate' in scope` (and the
    `ModDate` pair). Apple's `CGPDFContext.h` declares both constants
@@ -306,7 +315,7 @@ regress any other slice.
    iOS-available. This is a strict-TDD correction: the GREEN signal is
    reached after the compile error is resolved.
 
-5. **`UIGraphicsPDFRenderer` injection of `/ID` on iOS.** Even with all
+2. **`UIGraphicsPDFRenderer` injection of `/ID` on iOS.** Even with all
    `documentInfo` fields pinned (Title, Author, Creator, Subject,
    Keywords, CreationDate, ModDate), the second GREEN attempt produced
    a `test_twoConsecutiveCallsProduceByteIdenticalOutput` failure and a
@@ -332,13 +341,14 @@ regress any other slice.
    would require parsing and rewriting the cross-reference table,
    which is far outside the slice's minimal-scope budget.
 
-6. **No cross-machine determinism claim.** The cache guarantees
+3. **No cross-machine determinism claim.** The cache guarantees
    same-process determinism, which is exactly what the tests assert.
    Cross-machine determinism is a goal for task 1.3+ (bundled
    fixture + license SHA-256), but it is out of scope for task 1.2
    per the test contract.
 
 ### Out of scope (still deferred)
+
     - 1.3 — `sample-bundle.pdf` binary (bundled artifact + build phase).
     - 1.4 — `SAMPLE-BUNDLE-LICENSE.md`.
     - 1.5 — fixture *Copy Bundle Resources* wiring.
@@ -356,6 +366,7 @@ by the verified `PDFFixtureGenerator` contract, written to the exact path
 declared in `openspec/config.yaml`, and validated end-to-end.
 
 **Files added**
+
 - `InSummary/Resources/Fixtures/sample-bundle.pdf` (new, binary, 48474
   bytes) — the canonical Phase 2 fixture.
 - `InSummary/Resources/Fixtures/` (new directory) — created by the build
@@ -363,6 +374,7 @@ declared in `openspec/config.yaml`, and validated end-to-end.
   directory is non-empty and the only contents are the canonical PDF).
 
 **Files modified**
+
 - `openspec/changes/pdf-reader-pencilkit-ink-recovery/tasks.md` — flipped
   task 1.3 from `[ ]` to `[x]` so the persisted task artifact records the
   GREEN completion of the implementation-owned row. `git diff --stat`
@@ -372,6 +384,7 @@ declared in `openspec/config.yaml`, and validated end-to-end.
   — this entry.
 
 **Files NOT touched (deliberately deferred to other tasks)**
+
 - `InSummary/Resources/Fixtures/SAMPLE-BUNDLE-LICENSE.md` → task 1.4.
 - `InSummary.xcodeproj/project.pbxproj` *Copy Bundle Resources* phase →
   task 1.5.
@@ -513,6 +526,7 @@ not — see deviation #7.
 | 1.3 | `InSummaryTests/Support/PDFFixtureGeneratorTests.swift` (re-verified) | Unit (`XCTestCase`) | N/A (binary file added; no source edits) | (See 1.1 / 1.2) | ✅ Generator re-run on iOS Simulator 26.5 produces 48 474 bytes at the canonical path; 5/5 focused tests green; full 61-test suite green; bundle-side PDFKit parse reports `pageCount == 20` and 20/20 non-empty page renders | ⏳ Pending task 1.6 | ⏳ Pending task 1.7 |
 
 ### Test summary so far (Slice 1 cumulative)
+
 - **Tests written**: 5 (`PDFFixtureGeneratorTests`)
 - **Tests passing**: 5 (GREEN — task 1.3 closed)
 - **Layers used**: Unit (5)
@@ -521,7 +535,7 @@ not — see deviation #7.
 
 ### Deviations / notes (task 1.3)
 
-7. **Cross-process `fixtureContentHash` mismatch (bundled ≠ in-process).**
+1. **Cross-process `fixtureContentHash` mismatch (bundled ≠ in-process).**
    The bundled SHA-256
    (`2d0f772b75d928e469c3bdaa21aba01d1cb23e24773fe2f8851b687588c6d491`)
    does **not** equal the SHA-256 produced by `PDFFixtureGenerator`
@@ -554,13 +568,13 @@ not — see deviation #7.
    maintainer review can address it in the planned REFACTOR pass rather
    than discovering it cold in 1.6.
 
-8. **No regression on the full suite.** The 61-test full-suite pass
+2. **No regression on the full suite.** The 61-test full-suite pass
    re-confirmed after the binary landed on disk. The new file is a
    binary resource; it is not referenced from any source file in this
    task, so no source-level integration risk exists yet (resource
    wiring is task 1.5; the bundling test is task 1.6).
 
-9. **One-shot driver lives in `/tmp`, not the worktree.** The
+3. **One-shot driver lives in `/tmp`, not the worktree.** The
    `/tmp/run-fixture.swift` and `/tmp/verify-fixture.swift` drivers are
    build helpers, not deliverable code. They concatenate the verbatim
    generator source with a `@main` entry point and exercise the
@@ -570,7 +584,8 @@ not — see deviation #7.
    `openspec/changes/pdf-reader-pencilkit-ink-recovery/tasks.md`, and
    this entry in `apply-progress.md`.
 
-    ### Out of scope (still deferred)
+   ### Out of scope (still deferred)
+
     - 1.4 — `SAMPLE-BUNDLE-LICENSE.md` (CC0 dedication + generator SHA-256 + page count assertion).
     - 1.5 — fixture *Copy Bundle Resources* wiring in `InSummary.xcodeproj`.
     - 1.6 — `SampleBundleFixtureTests.swift` (the bundle-side hash assertion that deviation #7
@@ -590,6 +605,7 @@ when the bundle resource is absent. Public API is preserved. Cross-process
 `/ID` gap from deviation #7 is closed.
 
 **Authorized order deviation**:
+
 - This task is implemented **before** tasks 1.4, 1.5, and 1.6 (out of
   canonical order). The maintainer explicitly authorized:
   1. The TDD-order inversion (REFACTOR before the production-target
@@ -602,6 +618,7 @@ when the bundle resource is absent. Public API is preserved. Cross-process
   deliberately deferred. Only task 1.7 is marked `[x]` in this slice.
 
 **Files modified**
+
 - `InSummaryTests/Support/PDFFixtureGenerator.swift` — collapsed the
   fixture-resolution configuration into a single private helper
   (`resolveFixtureBytes()`) with a thin `bundledFixtureData()` reader.
@@ -628,6 +645,7 @@ when the bundle resource is absent. Public API is preserved. Cross-process
   — this entry.
 
 **Files NOT touched (deliberately deferred to other tasks)**
+
 - `InSummary/Resources/Fixtures/SAMPLE-BUNDLE-LICENSE.md` → task 1.4.
 - `InSummary` target's *Copy Bundle Resources* phase → task 1.5
   (the production wiring is the only slice the maintainer deferred).
@@ -691,7 +709,7 @@ left unchanged. `plutil -lint` reports `OK` after every edit.
 The canonical SHA-256 was captured directly from the bundle that the
 test process actually loads at runtime, not from the on-disk source
 file. This is the explicit cross-process reconciliation that deviation
-#7 was waiting for.
+# 7 was waiting for.
 
 **Build artifact location**
 
@@ -777,6 +795,7 @@ after the helper extraction. All 9 tests stayed GREEN.
 | 1.7 | `InSummaryTests/Support/PDFFixtureGeneratorTests.swift` (extended) | Unit (`XCTestCase`) | ✅ 5/5 baseline passing on `iPad Pro 13-inch (M5),OS=26.5` | ✅ Added 4 new tests (`test_bundledFixtureResolvesFromTestBundle`, `test_bundledFixtureSHA256EqualsCanonicalConstant`, `test_generateFixtureReturnsBundledBytesWhenResourceAvailable`, `test_canonicalContentHashEqualsBundledFixtureSHA256`); first run reported 4 expected RED failures | ✅ After pbxproj wiring + `resolveFixtureBytes()` helper: 9/9 PDFFixtureGeneratorTests green; full 65-test suite green | ✅ 2+ tests per new behavior (resolve + SHA pin; bundle-preference + hash-equals-bundled-SHA) | ✅ Indentation cleanup after helper extraction; 9/9 stayed green |
 
 ### Test summary so far (Slice 1 cumulative)
+
 - **Tests written**: 9 (`PDFFixtureGeneratorTests` — 5 original + 4 new)
 - **Tests passing**: 9 (all GREEN on `iPad Pro 13-inch (M5),OS=26.5`)
 - **Layers used**: Unit (9)
@@ -845,7 +864,7 @@ or the generator refactor).
 
 ### Deviations / notes (task 1.7)
 
-10. **Authorized order deviation.** This task is implemented before
+ 1. **Authorized order deviation.** This task is implemented before
     tasks 1.4, 1.5, and 1.6. The maintainer explicitly authorized the
     TDD-order inversion and the mechanical extension of fixture
     resource wiring to the `InSummaryTests` target. Tasks 1.4
@@ -855,7 +874,7 @@ or the generator refactor).
     active for this exact objective; this slice does not acquire,
     settle, reset, commit, push, or open a PR.
 
-11. **No PDF post-processor introduced.** The cross-process `/ID` gap
+ 2. **No PDF post-processor introduced.** The cross-process `/ID` gap
     that surfaced in deviation #7 is closed by preferring the bundled
     bytes — not by parsing and rewriting the PDF cross-reference
     table. The generator still uses `UIGraphicsPDFRenderer` as the
@@ -864,7 +883,7 @@ or the generator refactor).
     minimum-scope budget (no third-party PDF library; no
     cross-reference-table surgery).
 
-12. **No production-target resource wiring.** The `InSummary` native
+ 3. **No production-target resource wiring.** The `InSummary` native
     target's `PBXResourcesBuildPhase` is intentionally untouched.
     Task 1.5 owns that wiring and is still `[ ]`. The fixture is only
     wired into the test target's `PBXResourcesBuildPhase`
@@ -876,7 +895,7 @@ or the generator refactor).
     *Copy Bundle Resources* wiring on the `InSummary` target is
     deferred.
 
-13. **Bundle lookup via `Bundle(for: PDFFixtureGeneratorTests.self)`.**
+ 4. **Bundle lookup via `Bundle(for: PDFFixtureGeneratorTests.self)`.**
     `PDFFixtureGenerator` is a Swift `enum` namespace, so
     `Bundle(for:)` cannot use it directly (`Bundle(for:)` requires a
     class type, not a value-type metatype). The test class
@@ -885,7 +904,7 @@ or the generator refactor).
     test target's `InSummaryTests.xctest` plugin. This is the
     documented XCTest pattern for unit tests hosted in an app.
 
-14. **Fallback path is documented, not exercised.** The
+ 5. **Fallback path is documented, not exercised.** The
     `bundledFixtureData()` reader returns `nil` when the bundle
     resource is absent; `resolveFixtureBytes()` then delegates to
     `makeFixture()`. Exercising the fallback would require a separate
@@ -895,7 +914,7 @@ or the generator refactor).
     test, which still passes because the fallback still satisfies
     same-process byte identity.
 
-15. **Destination substitution.** The configured destination
+ 6. **Destination substitution.** The configured destination
     `iPad Pro 13-inch (M4),OS=26.0` is not installed on this host
     (only iOS 26.5 is). The closest installed equivalent is
     `iPad Pro 13-inch (M5),OS=26.5` — same form factor, OS bumped
@@ -903,6 +922,7 @@ or the generator refactor).
     and is documented in deviation #1 of the task 1.1 entry.
 
 ### Out of scope (still deferred)
+
 - 1.4 — `SAMPLE-BUNDLE-LICENSE.md` (CC0 dedication + generator SHA-256 + page count assertion).
 - 1.5 — fixture *Copy Bundle Resources* wiring on the production `InSummary` target.
 - 1.6 — `InSummaryTests/Fixtures/SampleBundleFixtureTests.swift` (the
@@ -920,6 +940,7 @@ canonical path and the persisted constants it names are verified against
 the on-disk PDF bytes.
 
 **Files added**
+
 - `InSummary/Resources/Fixtures/SAMPLE-BUNDLE-LICENSE.md` (new, Markdown)
   — the CC0 1.0 Universal dedication + project-authored assertion +
   bundled fixture identity (path, page count, SHA-256) for the Phase 2
@@ -929,6 +950,7 @@ the on-disk PDF bytes.
   committed**.
 
 **Files modified**
+
 - `openspec/changes/pdf-reader-pencilkit-ink-recovery/tasks.md` —
   flipped task 1.4 from `[ ]` to `[x]` so the persisted task artifact
   records the GREEN completion of the implementation-owned row.
@@ -938,6 +960,7 @@ the on-disk PDF bytes.
   — this entry.
 
 **Files NOT touched (deliberately deferred to other tasks)**
+
 - `InSummary/Resources/Fixtures/sample-bundle.pdf` — binary, already
   committed by task 1.3 with SHA-256
   `2d0f772b75d928e469c3bdaa21aba01d1cb23e24773fe2f8851b687588c6d491`.
@@ -1112,6 +1135,7 @@ tests). The additive license file does not regress any other slice.
 | 1.4 | (no new test file — additive documentation only) | Documentation | N/A — additive Markdown, no production surface touched; existing 65 tests act as the safety net | N/A — additive artifact; no production code change to gate | ✅ On-disk PDF re-measured: page count = 20 (`file(1)`), SHA-256 = `2d0f772b75d928e469c3bdaa21aba01d1cb23e24773fe2f8851b687588c6d491` (`shasum -a 256`); both equal the values named in `SAMPLE-BUNDLE-LICENSE.md`; focused generator suite green (9/9); full suite green (65/65) | ✅ Each named constant has ≥2 independent measurements: page count by `file(1)` + 2 `PDFFixtureGeneratorTests` cases; SHA-256 by `shasum -a 256` + the bundled-bytes test pinned in task 1.7 | N/A — one-pass Markdown document, no helper to collapse |
 
 ### Test summary so far (Slice 1 cumulative)
+
 - **Tests written**: 9 (`PDFFixtureGeneratorTests` — 5 original + 4 from task 1.7)
 - **Tests passing**: 9 (all GREEN on `iPad Pro 13-inch (M5),OS=26.5`)
 - **Layers used**: Unit (9)
@@ -1124,7 +1148,7 @@ tests). The additive license file does not regress any other slice.
 
 ### Deviations / notes (task 1.4)
 
-16. **Strict-TDD RED step is N/A for additive documentation.** The
+ 1. **Strict-TDD RED step is N/A for additive documentation.** The
     strict-TDD RED/GREEN/TRIANGULATE/REFACTOR cycle assumes the slice
     introduces (or modifies) production code that a failing test can
     gate. Task 1.4 only adds a Markdown file alongside an existing
@@ -1136,7 +1160,7 @@ tests). The additive license file does not regress any other slice.
     task 1.3, which already shipped the binary without a separate
     test step.
 
-17. **License constants verified against the on-disk PDF.** The
+ 2. **License constants verified against the on-disk PDF.** The
     prompt for this slice explicitly requested verification of the
     license constants against the on-disk PDF. Both constants
     (page count = 20; SHA-256 =
@@ -1145,7 +1169,7 @@ tests). The additive license file does not regress any other slice.
     license file. Three independent measurements agree: `file(1)` +
     `shasum -a 256` + the `PDFFixtureGeneratorTests` pins.
 
-18. **Destination substitution.** The configured destination
+ 3. **Destination substitution.** The configured destination
     `iPad Pro 13-inch (M4),OS=26.0` is not installed on this host
     (only iOS 26.5 is). The closest installed equivalent is
     `iPad Pro 13-inch (M5),OS=26.5` — same form factor, OS bumped
@@ -1155,7 +1179,7 @@ tests). The additive license file does not regress any other slice.
     additive Markdown does not touch any production surface, so the
     GREEN signal is independent of the simulator version.
 
-19. **No production-target resource wiring.** The license file is
+ 4. **No production-target resource wiring.** The license file is
     added to `InSummary/Resources/Fixtures/` but is not wired into
     the production `InSummary` target's `PBXResourcesBuildPhase`.
     Task 1.5 owns that wiring (it ships the bundled PDF and the
@@ -1164,7 +1188,7 @@ tests). The additive license file does not regress any other slice.
     the license file lives at the exact path declared by the spec,
     `InSummary/Resources/Fixtures/SAMPLE-BUNDLE-LICENSE.md`.
 
-20. **No PBX edit in this slice.** `git diff --stat
+ 5. **No PBX edit in this slice.** `git diff --stat
     InSummary.xcodeproj/project.pbxproj` reports no change relative
     to the previous slice (task 1.7). The license file is added
     to the worktree but not yet copied into any bundle. `git status`
@@ -1174,6 +1198,7 @@ tests). The additive license file does not regress any other slice.
     checkbox flips in `tasks.md` and `tasks-es.md`.
 
 ### Out of scope (still deferred)
+
 - 1.5 — fixture *Copy Bundle Resources* wiring on the production
   `InSummary` target (will ship the PDF and the license file together
   in the bundle).
@@ -1194,6 +1219,7 @@ byte identity with the source PDF and the test-target bundle copy is
 confirmed.
 
 **Files modified**
+
 - `InSummary.xcodeproj/project.pbxproj` — added one `PBXBuildFile`
   (`A100000000000000000000TC`) referencing the existing `PBXFileReference`
   (`A10000000000000000000210`) for `sample-bundle.pdf`, and inserted that
@@ -1212,6 +1238,7 @@ confirmed.
   — this entry.
 
 **Files NOT touched (deliberately deferred to other tasks)**
+
 - `InSummary/Resources/Fixtures/sample-bundle.pdf` — binary, already
   committed by task 1.3. Not regenerated, re-exported, or re-signed.
 - `InSummary/Resources/Fixtures/SAMPLE-BUNDLE-LICENSE.md` — task 1.4. Not
@@ -1376,6 +1403,7 @@ test-target wiring is byte-for-byte preserved.
 | 1.5 | `InSummaryTests/Support/PDFFixtureGeneratorTests.swift` (re-verified) | Unit (`XCTestCase`) | ✅ 9/9 baseline passing on `iPad Pro 13-inch (M5),OS=26.5` (after task 1.7) | N/A — additive pbxproj wiring only; no production code or test surface changes; no failing test would gate the wiring | ✅ Production-target `PBXResourcesBuildPhase` (`A100000000000000000000B2`) now contains the new `PBXBuildFile` (`A100000000000000000000TC` → `sample-bundle.pdf`); `xcodebuild build` succeeds; the bundled PDF is present at `InSummary.app/sample-bundle.pdf` (48 474 bytes, SHA-256 `2d0f772b…`); `PDFDocument.pageCount == 20`; first-page text confirms the canonical header and CC0 paragraph; the test bundle copy is preserved byte-for-byte; 9/9 focused generator tests still green | ✅ Three independent measurements agree on byte identity: source file vs. production bundle vs. test bundle — all 48 474 bytes, all SHA-256 `2d0f772b75d928e469c3bdaa21aba01d1cb23e24773fe2f8851b687588c6d491`. `PDFDocument.pageCount == 20` is pinned by `test_outputIsATwentyPagePDFDocument` and re-confirmed by the iOS Simulator `PDFKit` parse. | N/A — additive wiring, no helper to collapse |
 
 ### Test summary so far (Slice 1 cumulative)
+
 - **Tests written**: 9 (`PDFFixtureGeneratorTests` — 5 original + 4 from task 1.7)
 - **Tests passing**: 9 (all GREEN on `iPad Pro 13-inch (M5),OS=26.5`)
 - **Layers used**: Unit (9)
@@ -1391,7 +1419,7 @@ test-target wiring is byte-for-byte preserved.
 
 ### Deviations / notes (task 1.5)
 
-21. **Strict-TDD RED step is N/A for additive wiring.** Task 1.5 adds
+ 1. **Strict-TDD RED step is N/A for additive wiring.** Task 1.5 adds
     one `PBXBuildFile` and references it from one existing
     `PBXResourcesBuildPhase`. No production code change, no test
     change, and no fixture regeneration. The strict-TDD
@@ -1421,7 +1449,7 @@ test-target wiring is byte-for-byte preserved.
       helper to collapse. The existing test-target wiring from task 1.7
       is reused without duplication.
 
-22. **`PBXFileReference` reuse across two build phases.** The same
+ 2. **`PBXFileReference` reuse across two build phases.** The same
     `PBXFileReference` (`A10000000000000000000210`) is now referenced by
     two `PBXBuildFile`s — `A100000000000000000000TB` (test target, task
     1.7) and `A100000000000000000000TC` (production target, task 1.5).
@@ -1430,7 +1458,7 @@ test-target wiring is byte-for-byte preserved.
     (`InSummary` → `Resources` → `Fixtures` → `sample-bundle.pdf`) is
     untouched; the path is still resolved from the project root.
 
-23. **Test-target wiring preserved byte-for-byte.** The
+ 3. **Test-target wiring preserved byte-for-byte.** The
     `InSummaryTests` `PBXResourcesBuildPhase`
     (`A100000000000000000000B4`) and its `PBXBuildFile`
     (`A100000000000000000000TB`) are unchanged from the task 1.7 state.
@@ -1439,7 +1467,7 @@ test-target wiring is byte-for-byte preserved.
     pass after the production wiring lands, confirming the test-target
     wiring is functional.
 
-24. **No production source code, no production resource content, no
+ 4. **No production source code, no production resource content, no
     test surface changes.** `git diff --stat` in this slice shows:
     - `InSummary.xcodeproj/project.pbxproj` — 2 insertions (one
       `PBXBuildFile` declaration, one entry in the `files =` array).
@@ -1456,7 +1484,7 @@ test-target wiring is byte-for-byte preserved.
     `InSummary/Views/Library/LibraryGridView.swift` edit, no
     `InSummary/Services/...` addition. The PDF binary is unchanged.
 
-25. **Destination substitution.** The configured destination
+ 5. **Destination substitution.** The configured destination
     `iPad Pro 13-inch (M4),OS=26.0` is not installed on this host
     (only `iOS 26.5` is). The closest installed equivalent is
     `iPad Pro 13-inch (M5),OS=26.5` — same form factor, OS bumped
@@ -1466,7 +1494,7 @@ test-target wiring is byte-for-byte preserved.
     deviation #1 of the task 1.1 entry; same substitution used across
     tasks 1.1, 1.2, 1.3, 1.4, 1.7.
 
-26. **`file(1)` reports the wrong page count for this PDF.** `file(1)`
+ 6. **`file(1)` reports the wrong page count for this PDF.** `file(1)`
     reports `PDF document, version 1.3, 8 pages` for the bundled PDF
     (and for the source PDF, and for the test-bundle copy — they all
     have the same SHA-256). `file(1)`'s PDF page-count parser is
@@ -1481,7 +1509,7 @@ test-target wiring is byte-for-byte preserved.
     under PDFKit. `file(1)`'s `8 pages` reading is a known artifact of
     its heuristic PDF parser and is not authoritative.
 
-27. **Parent-held native SDD attempt honored.** This slice implemented
+ 7. **Parent-held native SDD attempt honored.** This slice implemented
     task 1.5 GREEN only. No acquire, settle, reset, commit, push, or
     PR-open actions were taken. The worktree's working tree now holds
     the pbxproj edit, the task checkbox flips, and the
@@ -1489,6 +1517,7 @@ test-target wiring is byte-for-byte preserved.
     task 1.5 as `[x]` only, with tasks 1.4, 1.6, and 1.8 still `[ ]`.
 
 ### Out of scope (still deferred)
+
     - 1.6 — `InSummaryTests/Fixtures/SampleBundleFixtureTests.swift`
       (single-purpose bundle-side test). The cross-process reconciliation
       already delivered by task 1.7 means task 1.6 can land with a smaller
@@ -1850,6 +1879,7 @@ destination) report clean. Slice 1 is ready for `sdd-verify` and PR
 assembly.
 
 **Files modified (allowed edit surfaces only)**
+
 - `openspec/changes/pdf-reader-pencilkit-ink-recovery/tasks.md` — task
   1.8 flipped from `[ ]` to `[x]` to mark verification complete in the
   persisted task artifact (mirrored in the next bullet).
@@ -2132,7 +2162,7 @@ touches any of these files** (verified via `git diff main..HEAD` and
 the Phase 2 ownership markers).
 
 | File | Slice | Owner | Rollback action |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `InSummary/Resources/Fixtures/sample-bundle.pdf` | 1.3 | implementation | `git rm` the binary |
 | `InSummary/Resources/Fixtures/SAMPLE-BUNDLE-LICENSE.md` | 1.4 | implementation | `git rm` the license |
 | `InSummaryTests/Support/PDFFixtureGenerator.swift` | 1.2 | implementation | `git rm` the generator source |
@@ -2142,6 +2172,7 @@ the Phase 2 ownership markers).
 | `openspec/changes/pdf-reader-pencilkit-ink-recovery/apply-progress.md` | 1.1–1.8 | implementation | drop the Slice 1 entry block |
 
 **No other Slice 1 file is touched** by any other PR in the chain:
+
 - Slices 2, 3, 4 do not touch the fixture binary, the license file,
   the generator, the generator tests, or the bundle-side GREEN spec.
 - Slices 2, 3, 4 add new code under `InSummary/Services/` and
@@ -2185,6 +2216,7 @@ other slice.
 | **1.8** | **Full suite + grep guard sweep** | **Integration** | **✅ 70/70 baseline passing on `iPad Pro 13-inch (M5),OS=26.5` (after task 1.6)** | **N/A — verification step; no production code authored** | **✅ Full XCTest suite green on `iPad Pro 13-inch (M5),OS=26.5` (70/70); grep guard sweep on the Phase 2 fixture surfaces returns zero matches on the Swift source + binary PDF; the single `https?://` hit is in `SAMPLE-BUNDLE-LICENSE.md` and is the canonical CC0 1.0 Universal legal-text URL — a documentation reference, not a runtime network call** | **✅ Two independent gates agree (XCTest exit code + grep exit code)** | **N/A — verification step** |
 
 ### Test summary so far (Slice 1 cumulative)
+
 - **Tests written**: 14 (5 `PDFFixtureGeneratorTests` original + 4 from
   task 1.7 + 5 `SampleBundleFixtureTests` from task 1.6)
 - **Tests passing**: 14 (all GREEN on `iPad Pro 13-inch (M5),OS=26.5`)
@@ -2206,7 +2238,7 @@ other slice.
   pinning the `Bundle.main` consumer contract
 
 ### Deviations / notes (task 1.8)
-34. **Destination substitution.** Same as tasks 1.1, 1.2, 1.3, 1.4, 1.5,
+ 1. **Destination substitution.** Same as tasks 1.1, 1.2, 1.3, 1.4, 1.5,
     1.6, 1.7. The configured destination `iPad Pro 13-inch (M4),OS=26.0`
     is not installed on this host (only iOS 26.5 is). The closest
     installed equivalent is `iPad Pro 13-inch (M5),OS=26.5` — same form
@@ -2214,7 +2246,7 @@ other slice.
     strict-TDD contract and the simulator target invariant from
     `openspec/config.yaml`.
 
-35. **Single `https?://` hit is a documentation URL, not a network
+ 2. **Single `https?://` hit is a documentation URL, not a network
     import.** The grep sweep returns exactly one hit across the Phase 2
     fixture surfaces, and it lives on the **license documentation**
     (`InSummary/Resources/Fixtures/SAMPLE-BUNDLE-LICENSE.md` line 24),
@@ -2234,7 +2266,7 @@ other slice.
     fragment). Verification passes; the single hit is recorded honestly
     here so `sdd-verify` can audit the outcome.
 
-36. **Pre-existing Phase 1 comments mentioning `cloudKitDatabase` /
+ 3. **Pre-existing Phase 1 comments mentioning `cloudKitDatabase` /
     `CKAsset` are not in scope.** The broader sweep across the entire
     `InSummary/` tree (and `InSummaryTests/`) returns hits inside
     `InSummaryTests/PersistenceControllerTests.swift` line 62 and
@@ -2246,7 +2278,7 @@ other slice.
     the v1 schema. They are intentional Phase 1 contracts, not
     forbidden imports; the Slice 1 PR diff does not touch either file.
 
-37. **Phase 2 fixture-surface scope is precise.** The verification sweep
+ 4. **Phase 2 fixture-surface scope is precise.** The verification sweep
     scopes to the five files Slice 1 introduced or wired (the binary,
     the license, the generator source, the generator tests, the bundle
     fixture tests). It does **not** sweep the whole `InSummary/` tree
@@ -2255,7 +2287,7 @@ other slice.
     is the fixture bundle. The defensive whole-`InSummary/` sweep is
     recorded for the auditor but is not the primary gate.
 
-38. **Verification evidence is in this entry, not in a separate file.**
+ 5. **Verification evidence is in this entry, not in a separate file.**
     The prompt authorised updating only the three task-mirror and
     progress-mirror surfaces; `sdd-verify` will read this entry plus
     the `tasks.md`/`tasks-es.md` checkboxes. No separate
@@ -2264,6 +2296,7 @@ other slice.
     change-level verification report.
 
 ### Out of scope (still deferred)
+
 - All later slices (2.x, 3.x, 4.x, 5.x).
 - Tracker close-out tasks 5.1–5.5 (parent-owned).
 - Commit / push / PR machinery (parent-held native SDD attempt owns).
@@ -2279,12 +2312,14 @@ other slice.
 `PDFReaderError` are intentionally absent.
 
 **Files added**
+
 - `InSummaryTests/PDFReaderCoordinatorTests.swift` (new) — 10 test
   methods covering the documented coordinator behaviours plus three
   private helpers (`makeSeedDocument`, `makeIsolatedBundle`,
   `makeBundleContainingJunkPDF`).
 
 **Test-infrastructure edit (required for RED to be observable)**
+
 - `InSummary.xcodeproj/project.pbxproj` — added a `PBXBuildFile`
   (`A100000000000000000000TE`), a `PBXFileReference`
   (`A10000000000000000000212`, path `PDFReaderCoordinatorTests.swift`,
@@ -2405,45 +2440,45 @@ the missing production types:
 
 ```
 Testing failed:
-	Cannot find 'PDFReaderCoordinator' in scope
-	Generic parameter 'T' could not be inferred
-	Cannot find 'PDFReaderCoordinator' in scope
-	Type 'Equatable' has no member 'singlePage'
-	Type 'Equatable' has no member 'horizontal'
-	Cannot find 'PDFReaderCoordinator' in scope
-	Type 'Equatable' has no member 'singlePageContinuous'
-	Type 'Equatable' has no member 'vertical'
-	Cannot find 'PDFReaderCoordinator' in scope
-	Type 'Equatable' has no member 'singlePage'
-	Type 'Equatable' has no member 'horizontal'
-	Cannot find 'PDFReaderCoordinator' in scope
-	Cannot infer contextual base in reference to member 'vertical'
-	Cannot find 'PDFReaderCoordinator' in scope
-	Type 'Equatable' has no member 'singlePageContinuous'
-	Type 'Equatable' has no member 'vertical'
-	Cannot find 'PDFReaderCoordinator' in scope
-	Cannot infer contextual base in reference to member 'vertical'
-	Cannot find 'PDFReaderCoordinator' in scope
-	Cannot find 'PDFReaderError' in scope
-	'let' binding pattern cannot appear in an expression
-	Cannot find 'PDFReaderCoordinator' in scope
-	Cannot find 'PDFReaderError' in scope
-	Cannot find 'PDFReaderCoordinator' in scope
-	Cannot find 'PDFReaderError' in scope
-	'let' binding pattern cannot appear in an expression
-	Cannot find 'PDFReaderCoordinator' in scope
-	Cannot find 'PDFReaderError' in scope
-	'let' binding pattern cannot appear in an expression
-	Testing cancelled because the build failed.
+ Cannot find 'PDFReaderCoordinator' in scope
+ Generic parameter 'T' could not be inferred
+ Cannot find 'PDFReaderCoordinator' in scope
+ Type 'Equatable' has no member 'singlePage'
+ Type 'Equatable' has no member 'horizontal'
+ Cannot find 'PDFReaderCoordinator' in scope
+ Type 'Equatable' has no member 'singlePageContinuous'
+ Type 'Equatable' has no member 'vertical'
+ Cannot find 'PDFReaderCoordinator' in scope
+ Type 'Equatable' has no member 'singlePage'
+ Type 'Equatable' has no member 'horizontal'
+ Cannot find 'PDFReaderCoordinator' in scope
+ Cannot infer contextual base in reference to member 'vertical'
+ Cannot find 'PDFReaderCoordinator' in scope
+ Type 'Equatable' has no member 'singlePageContinuous'
+ Type 'Equatable' has no member 'vertical'
+ Cannot find 'PDFReaderCoordinator' in scope
+ Cannot infer contextual base in reference to member 'vertical'
+ Cannot find 'PDFReaderCoordinator' in scope
+ Cannot find 'PDFReaderError' in scope
+ 'let' binding pattern cannot appear in an expression
+ Cannot find 'PDFReaderCoordinator' in scope
+ Cannot find 'PDFReaderError' in scope
+ Cannot find 'PDFReaderCoordinator' in scope
+ Cannot find 'PDFReaderError' in scope
+ 'let' binding pattern cannot appear in an expression
+ Cannot find 'PDFReaderCoordinator' in scope
+ Cannot find 'PDFReaderError' in scope
+ 'let' binding pattern cannot appear in an expression
+ Testing cancelled because the build failed.
 
 ** TEST FAILED **
 
 The following build commands failed:
-	SwiftCompile normal arm64 Compiling PDFReaderCoordinatorTests.swift
-	    /Users/sebailla/Developer/in-summary-worktrees/feat-pdf-engine/InSummaryTests/PDFReaderCoordinatorTests.swift
-	SwiftCompile normal arm64
-	    /Users/sebailla/Developer/in-summary-worktrees/feat-pdf-engine/InSummaryTests/PDFReaderCoordinatorTests.swift
-	Testing project InSummary with scheme InSummary
+ SwiftCompile normal arm64 Compiling PDFReaderCoordinatorTests.swift
+     /Users/sebailla/Developer/in-summary-worktrees/feat-pdf-engine/InSummaryTests/PDFReaderCoordinatorTests.swift
+ SwiftCompile normal arm64
+     /Users/sebailla/Developer/in-summary-worktrees/feat-pdf-engine/InSummaryTests/PDFReaderCoordinatorTests.swift
+ Testing project InSummary with scheme InSummary
 (3 failures)
 ```
 
@@ -2483,6 +2518,7 @@ failed.`
 | 2.1 | `InSummaryTests/PDFReaderCoordinatorTests.swift` | Unit (`XCTestCase`) | N/A (new file) | ✅ Written — compile fails on 9 unresolved `PDFReaderCoordinator` references + 4 unresolved `PDFReaderError` references + 16 cascade errors | ⏳ Pending task 2.2 (typed error) and task 2.3 (coordinator) | ⏳ Pending task 2.5 (save + updatedAt advance triangulation) | ⏳ Pending task 2.6 (collapse fixture-URL lookup) |
 
 ### Test summary so far (Slice 2)
+
 - **Tests written**: 10 (`PDFReaderCoordinatorTests`)
 - **Tests passing**: 0 (RED — pending GREEN in tasks 2.2 + 2.3)
 - **Layers used**: Unit (10)
@@ -2490,6 +2526,7 @@ failed.`
   `PDFReaderCoordinator` / `PDFReaderError` types
 
 ### Out of scope (still deferred)
+
 - Tasks 2.2 (`PDFReaderError.swift`) and 2.3 (`PDFReaderCoordinator.swift`)
   belong to the GREEN step and are not picked up here.
 - Task 2.4 (wire production files into *Sources* phase) lands in the
@@ -2512,6 +2549,7 @@ compile errors are resolved. The focused coordinator suite stays RED
 intentionally absent — exactly the strict-TDD contract.
 
 **Files added**
+
 - `InSummary/Services/PDFEngine/PDFReaderError.swift` (new, 70 lines) —
   the typed error surface. The file lives in a new
   `InSummary/Services/PDFEngine/` directory; this directory is the
@@ -2521,6 +2559,7 @@ intentionally absent — exactly the strict-TDD contract.
   required for `PDFReaderError.swift` to live in its canonical path).
 
 **Files modified**
+
 - `InSummary.xcodeproj/project.pbxproj` — added one `PBXBuildFile`
   (`A100000000000000000000TF`), one `PBXFileReference`
   (`A10000000000000000000213`), one `PBXGroup`
@@ -2540,6 +2579,7 @@ intentionally absent — exactly the strict-TDD contract.
   — this entry.
 
 **Files NOT touched (deliberately deferred to other tasks)**
+
 - `InSummary/Services/PDFEngine/PDFReaderCoordinator.swift` → task 2.3
   (still `[ ]`). The coordinator is intentionally absent so the focused
   test suite stays RED for the right reason.
@@ -2670,37 +2710,37 @@ xcodebuild test \
 
 ```
 Testing failed:
-	Cannot find 'PDFReaderCoordinator' in scope
-	Generic parameter 'T' could not be inferred
-	Cannot find 'PDFReaderCoordinator' in scope
-	Type 'Equatable' has no member 'singlePage'
-	Type 'Equatable' has no member 'horizontal'
-	Cannot find 'PDFReaderCoordinator' in scope
-	Type 'Equatable' has no member 'singlePageContinuous'
-	Type 'Equatable' has no member 'vertical'
-	Cannot find 'PDFReaderCoordinator' in scope
-	Type 'Equatable' has no member 'singlePage'
-	Type 'Equatable' has no member 'horizontal'
-	Cannot find 'PDFReaderCoordinator' in scope
-	Cannot infer contextual base in reference to member 'vertical'
-	Cannot find 'PDFReaderCoordinator' in scope
-	Type 'Equatable' has no member 'singlePageContinuous'
-	Type 'Equatable' has no member 'vertical'
-	Cannot find 'PDFReaderCoordinator' in scope
-	Cannot infer contextual base in reference to member 'vertical'
-	Cannot find 'PDFReaderCoordinator' in scope
-	Cannot find 'PDFReaderCoordinator' in scope
-	Cannot find 'PDFReaderCoordinator' in scope
-	Cannot find 'PDFReaderCoordinator' in scope
-	Testing cancelled because the build failed.
+ Cannot find 'PDFReaderCoordinator' in scope
+ Generic parameter 'T' could not be inferred
+ Cannot find 'PDFReaderCoordinator' in scope
+ Type 'Equatable' has no member 'singlePage'
+ Type 'Equatable' has no member 'horizontal'
+ Cannot find 'PDFReaderCoordinator' in scope
+ Type 'Equatable' has no member 'singlePageContinuous'
+ Type 'Equatable' has no member 'vertical'
+ Cannot find 'PDFReaderCoordinator' in scope
+ Type 'Equatable' has no member 'singlePage'
+ Type 'Equatable' has no member 'horizontal'
+ Cannot find 'PDFReaderCoordinator' in scope
+ Cannot infer contextual base in reference to member 'vertical'
+ Cannot find 'PDFReaderCoordinator' in scope
+ Type 'Equatable' has no member 'singlePageContinuous'
+ Type 'Equatable' has no member 'vertical'
+ Cannot find 'PDFReaderCoordinator' in scope
+ Cannot infer contextual base in reference to member 'vertical'
+ Cannot find 'PDFReaderCoordinator' in scope
+ Cannot find 'PDFReaderCoordinator' in scope
+ Cannot find 'PDFReaderCoordinator' in scope
+ Cannot find 'PDFReaderCoordinator' in scope
+ Testing cancelled because the build failed.
 
 ** TEST FAILED **
 
 
 The following build commands failed:
-	SwiftCompile normal arm64 Compiling\ PDFReaderCoordinatorTests.swift /Users/sebailla/Developer/in-summary-worktrees/feat-pdf-engine/InSummaryTests/PDFReaderCoordinatorTests.swift (in target 'InSummaryTests' from project 'InSummary')
-	SwiftCompile normal arm64 /Users/sebailla/Developer/in-summary-worktrees/feat-pdf-engine/InSummaryTests/PDFReaderCoordinatorTests.swift (in target 'InSummaryTests' from project 'InSummary')
-	Testing project InSummary with scheme InSummary
+ SwiftCompile normal arm64 Compiling\ PDFReaderCoordinatorTests.swift /Users/sebailla/Developer/in-summary-worktrees/feat-pdf-engine/InSummaryTests/PDFReaderCoordinatorTests.swift (in target 'InSummaryTests' from project 'InSummary')
+ SwiftCompile normal arm64 /Users/sebailla/Developer/in-summary-worktrees/feat-pdf-engine/InSummaryTests/PDFReaderCoordinatorTests.swift (in target 'InSummaryTests' from project 'InSummary')
+ Testing project InSummary with scheme InSummary
 (3 failures)
 ```
 
@@ -2787,6 +2827,7 @@ value-witness table (`OWV`), and `Error` conformance witness (`OWy`,
 | 2.2 | `InSummaryTests/PDFReaderCoordinatorTests.swift` (verified) | Unit (`XCTestCase`) | ✅ 29-error RED baseline from task 2.1 (all cascading from missing `PDFReaderCoordinator` + `PDFReaderError`) | (See 2.1) | ✅ After wiring `PDFReaderError.swift` into the production target: 4 `cannot find 'PDFReaderError'` errors resolved, 4 `'let' binding pattern` errors resolved (cascade from missing `unsupportedDocument(let reason)` case); remaining 22 errors are all cascade from the still-missing `PDFReaderCoordinator` — strict-TDD partial GREEN exactly as expected; production target builds with `** BUILD SUCCEEDED **`; `PDFReaderError` symbol present in the compiled `InSummary.debug.dylib` | ✅ Each named case has at least one dedicated test method that pattern-matches on it (behaviour 7 = `fixtureMissing`, behaviour 8 = `fixtureUnreadable`, behaviours 9 & 10 = `unsupportedDocument`); `paginationSaveFailed(underlying:)` is asserted indirectly via the coordinator's `paginationMode` setter contract (task 2.3) and behaviour 5's `modelContext.save()` round-trip | ✅ N/A — single enum declaration, no helper to collapse; the `Services/PDFEngine/` PBX subgroup mirrors the `Services/Persistence/` subgroup pattern (subgroup ID `A100000000000000000000GE` sits as the second child of `Services` after `Persistence`) |
 
 ### Test summary so far (Slice 2 cumulative)
+
 - **Tests written**: 10 (`PDFReaderCoordinatorTests`)
 - **Tests passing**: 0 (RED preserved — task 2.3 still `[ ]`)
 - **Layers used**: Unit (10)
@@ -2798,7 +2839,7 @@ value-witness table (`OWV`), and `Error` conformance witness (`OWy`,
 
 ### Deviations / notes (task 2.2)
 
-31. **Partial GREEN, by design.** The strict-TDD RED → GREEN →
+ 1. **Partial GREEN, by design.** The strict-TDD RED → GREEN →
     TRIANGULATE → REFACTOR cycle assumes the slice produces a complete
     GREEN signal (the failing test goes to passing). Task 2.2 only
     lands one of the two missing production types (`PDFReaderError`);
@@ -2813,7 +2854,7 @@ value-witness table (`OWV`), and `Error` conformance witness (`OWy`,
     22 remaining errors are catalogued by root cause and every one of
     them traces back to the same single missing type.
 
-32. **`PDFReaderError` is `Error` only — no `Equatable`, no `Sendable`,
+ 2. **`PDFReaderError` is `Error` only — no `Equatable`, no `Sendable`,
     no `LocalizedError`.** The test contract pattern-matches on the
     four cases (`case PDFReaderError.fixtureMissing(let resource)`,
     `case PDFReaderError.fixtureUnreadable`, `case
@@ -2828,7 +2869,7 @@ value-witness table (`OWV`), and `Error` conformance witness (`OWy`,
     for the crash-log path; the `any Error` annotation is the canonical
     Swift 6 syntax.
 
-33. **PBX subgroup mirrors `Services/Persistence/`.** The new
+ 3. **PBX subgroup mirrors `Services/Persistence/`.** The new
     `Services/PDFEngine/` `PBXGroup`
     (`A100000000000000000000GE`) is appended to the `Services`
     (`A100000000000000000000G7`) group's children immediately after
@@ -2840,7 +2881,7 @@ value-witness table (`OWV`), and `Error` conformance witness (`OWy`,
     (`A100000000000000000000TF`) is added to the existing production
     `PBXSourcesBuildPhase` (`A100000000000000000000B1`).
 
-34. **No `DocumentItem` or other model changes.** `git diff
+ 4. **No `DocumentItem` or other model changes.** `git diff
     --stat InSummary/Models/` in this slice reports no change. The
     Phase 1 invariant (`DocumentItem.paginationModeRaw` and
     `PageAnnotation.drawingData` are Phase 1 invariants; Phase 2
@@ -2849,7 +2890,7 @@ value-witness table (`OWV`), and `Error` conformance witness (`OWy`,
     `Services/PDFEngine/PDFReaderError.swift` and does not import
     SwiftData, PDFKit, PencilKit, or any Phase 1 entity.
 
-35. **Destination substitution.** The configured destination
+ 5. **Destination substitution.** The configured destination
     `iPad Pro 13-inch (M4),OS=26.0` is not installed on this host
     (only `iOS 26.5` is). The closest installed equivalent is
     `iPad Pro 13-inch (M5),OS=26.5` — same form factor, OS bumped
@@ -2858,7 +2899,7 @@ value-witness table (`OWV`), and `Error` conformance witness (`OWy`,
     1.5, 1.6, 1.7, and 2.1. Documented in deviation #1 of the task 1.1
     entry.
 
-36. **Parent-held native SDD attempt honored.** This slice implemented
+ 6. **Parent-held native SDD attempt honored.** This slice implemented
     task 2.2 GREEN only. No acquire, settle, reset, commit, push, or
     PR-open actions were taken. The worktree's working tree now holds
     the new `PDFReaderError.swift` source, the pbxproj wiring, the
@@ -2868,6 +2909,7 @@ value-witness table (`OWV`), and `Error` conformance witness (`OWy`,
     still `[ ]`.
 
 ### Out of scope (still deferred)
+
 - Task 2.3 (`PDFReaderCoordinator.swift`) — the coordinator is the
   remaining missing production type; landing it will turn the focused
   suite fully GREEN and close the error cascade documented above.
@@ -2877,10 +2919,10 @@ value-witness table (`OWV`), and `Error` conformance witness (`OWy`,
   the new file, second child of the `PDFEngine` subgroup.
 - Task 2.5 (TRIANGULATE — `setPaginationMode` calls
   `modelContext.save()` + `updatedAt` advance test).
-    - Task 2.6 (REFACTOR — collapse duplicate fixture-URL lookup into a
+  - Task 2.6 (REFACTOR — collapse duplicate fixture-URL lookup into a
       single private helper; ensure no `PencilKit` import).
-    - Task 2.7 (VERIFY — grep guards + full coordinator suite green).
-    - Slices 3, 4, 5 (tracker close-out). Parent-held native SDD attempt
+  - Task 2.7 (VERIFY — grep guards + full coordinator suite green).
+  - Slices 3, 4, 5 (tracker close-out). Parent-held native SDD attempt
       owns commit / push / PR machinery.
 
 ---
@@ -2894,11 +2936,13 @@ behaviour 6 leaves uncovered, and the existing
 deviation #43 below.
 
 **Files added**
+
 - (none — the test is appended to the existing
   `InSummaryTests/PDFReaderCoordinatorTests.swift` RED-contract file
   from task 2.1)
 
 **Files modified**
+
 - `InSummaryTests/PDFReaderCoordinatorTests.swift` — appended a single
   test method
   (`test_setPaginationModeCallsModelContextSaveAndAdvancesUpdatedAtWhileOtherFieldsStayEqual`)
@@ -3127,7 +3171,7 @@ unchanged). The test-only diff does not regress any other slice.
 
 ### Deviations / notes (task 2.5)
 
-43. **Triangulation test is GREEN on first run; RED signal
+ 1. **Triangulation test is GREEN on first run; RED signal
     reinterpreted.** The classic strict-TDD RED signal is "the test
     fails because the implementation is absent". For triangulation
     — which is performed AFTER the GREEN implementation has
@@ -3186,7 +3230,7 @@ unchanged). The test-only diff does not regress any other slice.
     `save()` and the persisted row reflects the toggle from a
     fresh-context perspective".
 
-44. **Destination substitution.** The configured destination
+ 2. **Destination substitution.** The configured destination
     `iPad Pro 13-inch (M4),OS=26.0` is not installed on this host
     (only `iOS 26.5` is). The closest installed equivalent is
     `iPad Pro 13-inch (M5),OS=26.5` — same form factor, OS bumped
@@ -3194,7 +3238,7 @@ unchanged). The test-only diff does not regress any other slice.
     and is the same substitution used across tasks 1.1, 1.2, 1.3,
     1.4, 1.5, 1.6, 1.7, 2.1, 2.2, 2.3, and 2.4.
 
-45. **`hasChanges` check is dependent on SwiftData autosave
+ 3. **`hasChanges` check is dependent on SwiftData autosave
     behaviour.** The strict-TDD triangulation point
     `XCTAssertFalse(context.hasChanges, ...)` after the setter is a
     direct signal that `save()` was called (or that autosave fired,
@@ -3209,7 +3253,7 @@ unchanged). The test-only diff does not regress any other slice.
     in-memory `ModelContainer`s). The two angles are
     complementary, not redundant.
 
-46. **Parent-held native SDD attempt honored.** This slice
+ 4. **Parent-held native SDD attempt honored.** This slice
     implemented task 2.5 TRIANGULATE only. No acquire, settle,
     reset, commit, push, or PR-open actions were taken. The
     worktree's working tree now holds the new test method, the
@@ -3239,6 +3283,7 @@ on the first behaviour-correct run after one diagnostic compile cycle
 80-test XCTest suite is green on `iPad Pro 13-inch (M5), OS=26.5`.
 
 **Files added**
+
 - `InSummary/Services/PDFEngine/PDFReaderCoordinator.swift` (new, 285
   lines including doc comments) — the `@MainActor` coordinator that
   wraps `PDFKit.PDFView` and the SwiftData write-back for the
@@ -3247,6 +3292,7 @@ on the first behaviour-correct run after one diagnostic compile cycle
   method to a Bool property — see deviation #37.
 
 **Files modified**
+
 - `InSummary.xcodeproj/project.pbxproj` — added one `PBXBuildFile`
   (`A100000000000000000000TG`), one `PBXFileReference`
   (`A10000000000000000000214`, path
@@ -3268,6 +3314,7 @@ on the first behaviour-correct run after one diagnostic compile cycle
   — this entry.
 
 **Files NOT touched (deliberately deferred to other tasks)**
+
 - `InSummaryTests/PDFReaderCoordinatorTests.swift` — task 2.1. The
   RED contract is preserved byte-for-byte; no test was modified to
   fit the production code.
@@ -3327,7 +3374,7 @@ explicitly.
    `PDFReaderError.fixtureUnreadable`. The banner renders a
    "the bundled PDF cannot be parsed" recoverable error.
 5. Resolve `paginationModeRaw` against the canonical set
-   (`{"horizontal", "vertical"}); on miss, fall back to `.horizontal`
+   (`{"horizontal", "vertical"}); on miss, fall back to`.horizontal`
    and capture the unknown raw value for post-`self`-init logging.
 6. Build a fresh `PDFView`, set `.document`, apply the resolved
    pagination mode via the single static helper.
@@ -3352,6 +3399,7 @@ var paginationMode: PaginationMode {
 ```
 
 The setter:
+
 1. Mutates `document.paginationModeRaw` to the new raw value.
 2. Bumps `document.updatedAt` to `Date()` — strictly greater than the
    original value the test pins at `Date(timeIntervalSince1970:
@@ -3390,12 +3438,14 @@ private static func configurePDFView(_ pdfView: PDFView, for mode: PaginationMod
 ```
 
 Horizontal paginated mode:
+
 - `displayMode = .singlePage`
 - `displayDirection = .horizontal`
 - `usePageViewController(true)` — see deviation #37 for why this is a
   method call, not a property assignment.
 
 Vertical continuous mode:
+
 - `displayMode = .singlePageContinuous`
 - `displayDirection = .vertical`
 - `usePageViewController` is **not** invoked; the PDFKit default
@@ -3588,9 +3638,10 @@ slice.
 
 ### Deviations / notes (task 2.3)
 
-37. **`usePageViewController` is a method, not a Bool property, in
+ 1. **`usePageViewController` is a method, not a Bool property, in
     the iOS 26 PDFKit SDK.** The ObjC header
     (`PDFKit.framework/Headers/PDFView.h`) declares:
+
     ```objc
     - (void)usePageViewController:(BOOL)enable
         withViewOptions:(nullable NSDictionary*)viewOptions
@@ -3598,6 +3649,7 @@ slice.
     @property (nonatomic, readonly) BOOL isUsingPageViewController
         PDFKIT_AVAILABLE(NA, 11_0);
     ```
+
     Swift bridges the method unchanged as
     `func usePageViewController(_ enable: Bool, withViewOptions:
     [AnyHashable: Any]? = nil)` — a method, not a property. The
@@ -3646,18 +3698,20 @@ slice.
     side (the missing coordinator), and the bridge is part of the
     GREEN surface.
 
-38. **`paginationMode` setter is non-throwing; persistence failures
+ 2. **`paginationMode` setter is non-throwing; persistence failures
     log via `os.Logger`.** The design intent (documented in the
     task 2.2 PDFReaderError comment for `paginationSaveFailed`) is
     that the setter surfaces persistence failures via the typed
     `PDFReaderError.paginationSaveFailed(underlying:)` case. The RED
     contract in task 2.1, however, calls the setter without `try`:
+
     ```swift
     do {
         let coordinator = try PDFReaderCoordinator(document: document, modelContext: context)
         coordinator.paginationMode = .vertical
     }
     ```
+
     A throwing setter would fail to compile against this test. The
     minimal, contract-preserving implementation is a non-throwing
     setter that calls `modelContext.save()` inside a `do { try ...
@@ -3677,7 +3731,7 @@ slice.
     and the RED contract's syntactic constraint (no `try` on the
     setter).
 
-39. **Two diagnostic compile cycles before the first GREEN.** The
+ 3. **Two diagnostic compile cycles before the first GREEN.** The
     first compile of `PDFReaderCoordinator.swift` surfaced two
     errors against the iOS 26 SDK:
     - `reference to property 'document' in closure requires explicit
@@ -3697,7 +3751,7 @@ slice.
     a future reviewer can audit the strict-TDD contract: the test
     was not weakened, the production code satisfies the contract.
 
-40. **No `DocumentItem` or other model changes.** `git diff --stat
+ 4. **No `DocumentItem` or other model changes.** `git diff --stat
     InSummary/Models/` reports no change in this slice. The Phase 1
     invariant (`DocumentItem.paginationModeRaw` and
     `PageAnnotation.drawingData` are Phase 1 invariants; Phase 2
@@ -3707,7 +3761,7 @@ slice.
     import SwiftData model types beyond the existing `DocumentItem`
     reference and the `ModelContext` the caller hands us.
 
-41. **Destination substitution.** The configured destination
+ 5. **Destination substitution.** The configured destination
     `iPad Pro 13-inch (M4),OS=26.0` is not installed on this host
     (only `iOS 26.5` is). The closest installed equivalent is
     `iPad Pro 13-inch (M5),OS=26.5` — same form factor, OS bumped
@@ -3715,7 +3769,7 @@ slice.
     and is the same substitution used across tasks 1.1, 1.2, 1.3,
     1.4, 1.5, 1.6, 1.7, 2.1, and 2.2.
 
-42. **Parent-held native SDD attempt honored.** This slice
+ 6. **Parent-held native SDD attempt honored.** This slice
     implemented task 2.3 GREEN only. No acquire, settle, reset,
     commit, push, or PR-open actions were taken. The worktree's
     working tree now holds the new `PDFReaderCoordinator.swift`
@@ -4191,6 +4245,7 @@ blocked substring. No production behaviour is altered, no test is touched, no
 PBX entry is touched, no fixture, model, or resource is touched.
 
 **Files modified (comment-only)**
+
 - `InSummary/Services/PDFEngine/PDFReaderCoordinator.swift` — file-header
   block, lines 28–29. The literal string
   `No URLSession, NWConnection, NSPersistentCloudKitContainer, CKContainer, or any remote I/O.`
@@ -4204,7 +4259,7 @@ PBX entry is touched, no fixture, model, or resource is touched.
   `` `NSPersistentCloudKitContainer` error ``
   is reworded to
   `cloud-backed SwiftData store error`.
-  The surrounding `No HTTP, no `URLError`, ... `CKError`.` enumeration is
+  The surrounding `No HTTP, no`URLError`, ...`CKError`.` enumeration is
   preserved.
 - `openspec/changes/pdf-reader-pencilkit-ink-recovery/tasks.md` — task 2.7
   flipped from `[ ]` to `[x]`. No other checkbox moves in this slice.
@@ -4378,7 +4433,7 @@ task-2.7 blocked literal.
 
 **Deviations / notes (task 2.7)**
 
-52. **Comment-only remediation scope.** The previous attempt failed
+ 1. **Comment-only remediation scope.** The previous attempt failed
     evidence solely on the three (actually four occurrences of three
     distinct) literal forbidden API names in file-header comments. The
     remediation rewrites only the comment encyclopaedias — no
@@ -4387,7 +4442,7 @@ task-2.7 blocked literal.
     satisfies the task 2.7 acceptance gates (grep guard clean + focused
     suite green) without altering observable behaviour.
 
-53. **Distinct literal count vs. line count.** The parent prompt said
+ 2. **Distinct literal count vs. line count.** The parent prompt said
     "three literal forbidden API names"; the on-disk state had four
     occurrences of three distinct literals across three lines:
     - `URLSession` on `PDFReaderCoordinator.swift:28` (the blocklist
@@ -4402,7 +4457,7 @@ task-2.7 blocked literal.
     All four are reworded in a single coherent sentence per file so the
     local-only / no-remote-I/O meaning is preserved verbatim.
 
-54. **Destination substitution (already documented in deviation #49 of
+ 3. **Destination substitution (already documented in deviation #49 of
     task 2.6).** The configured destination
     `iPad Pro 13-inch (M4),OS=26.0` is not installed on this host (only
     `iOS 26.5` is). The closest installed equivalent is
@@ -4410,7 +4465,7 @@ task-2.7 blocked literal.
     26.0 → 26.5. The substitution preserves the strict-TDD contract and
     matches every prior slice in this change.
 
-55. **Parent-held native SDD attempt honored.** This slice implemented
+ 4. **Parent-held native SDD attempt honored.** This slice implemented
     task 2.7 remediation only. No acquire, settle, reset, commit, push,
     or PR-open actions were taken. The worktree's working tree now
     carries the reworded comments in the two production files, the task
@@ -4425,8 +4480,603 @@ task-2.7 blocked literal.
     scope for this comment-only remediation.
 
 **Out of scope (still deferred)**
+
 - Slices 3, 4, 5 (tracker close-out). Parent-held native SDD attempt owns
   commit / push / PR machinery.
 - Tracker PR promotion (`tasks.md` tasks 0.4, 0.5, 5.1, 5.2, 5.3).
 - Archive step (`tasks.md` task 5.5).
 - Verification report (`tasks.md` task 5.4).
+
+---
+
+## Slice 3 — Child PR #3 (`feat/pencilkit-ink-overlay`, target: PR #2's branch)
+
+### Task 3.1 RED — `PencilCanvasOverlayTests.swift`
+
+**Status**: ✅ Red established; first run after compile-error cycle. The
+production types `PencilCanvasOverlay` and `AnnotationError` were
+intentionally absent in this slice, so the focused compilation failed
+on the expected unresolved-symbol errors.
+
+**Files added**
+
+- `InSummaryTests/PencilCanvasOverlayTests.swift` (new, 7 test methods).
+
+**Files modified (test-infrastructure wiring required for RED to be observable)**
+
+- `InSummary.xcodeproj/project.pbxproj` — added `PBXBuildFile`
+  (`A100000000000000000000TH`), `PBXFileReference`
+  (`A10000000000000000000215`, path `PencilCanvasOverlayTests.swift`),
+  entry to the `InSummaryTests` `PBXGroup`, and entry to the test
+  target's `PBXSourcesBuildPhase`. `plutil -lint` reports `OK`.
+
+**Coverage authored (7 test methods)**
+
+| Method | Behaviour pinned |
+| --- | --- |
+| `test_drawingPolicyIsPencilOnly` | `canvas.drawingPolicy.rawValue == PKCanvasViewDrawingPolicy.pencilOnly.rawValue` |
+| `test_defaultToolIsHighlighter` | `canvas.tool` is a `PKInkingTool` with `inkType == .marker` and translucent yellow color (alpha ≤ 0.5) |
+| `test_defaultToolRemainsHighlighterAfterReplay` | After replaying a non-empty `PKDrawing`, the inking tool remains the highlighter analog |
+| `test_replayByteIdenticalWhenDrawingDataExists` | Stroke geometry round-trips through `PKDrawing(data:)` byte-stable at the data layer; canvas stroke count matches the original |
+| `test_lazyUpsertMissingPageAnnotationRendersBlankCanvas` | When `pageAnnotation == nil`, the overlay creates a `PageAnnotation` bound to `(document.id, pageIndex)` and renders a blank canvas |
+| `test_clearCanvasPersistsEmptyBytes` | `overlay.clear(canvas:)` empties `pageAnnotation.drawingData` and the in-memory canvas |
+| `test_decodeFailureSurfacesRecoverableErrorAndPreservesUnreadableBytes` | When `PKDrawing(data:)` rejects the bytes, `lastError == .drawingDecodeFailed`, canvas is blank, `annotation.drawingData` is untouched |
+
+**RED verification (initial run)**
+
+`Cannot find 'PencilCanvasOverlay' in scope` × 6 + `Cannot find 'AnnotationError' in scope` × 1 + cascade errors. The strict-TDD RED signal is exactly this: the test encodes the contract before the production code exists.
+
+### Task 3.2 GREEN — `AnnotationError.swift`
+
+**Files added**
+
+- `InSummary/Services/AnnotationEngine/AnnotationError.swift` (new, 63 lines, 2 cases).
+
+**Production surface (matches the spec verbatim)**
+
+| Case | Associated value | Spec scenario |
+| --- | --- | --- |
+| `drawingDecodeFailed` | — | "Decoder rejection surfaces a recoverable error" |
+| `drawingPersistenceFailed(underlying:)` | `any Error` | "Save failure surfaces a recoverable error" |
+
+**Phase 2 invariants honoured (per the file-header doc comment)**: local-only, no `PDFKit` import, no new SwiftData model types, no remote-capability surface.
+
+### Task 3.3 GREEN — `PencilCanvasOverlay.swift`
+
+**Files added**
+
+- `InSummary/Services/AnnotationEngine/PencilCanvasOverlay.swift`
+  (new, 445 lines; contains both the `UIViewRepresentable` struct and
+  the `PencilCanvasOverlayCoordinator` class).
+
+**Files modified**
+
+- `InSummary.xcodeproj/project.pbxproj` — added `PBXBuildFile`
+  (`A100000000000000000000TI`), `PBXFileReference`
+  (`A10000000000000000000216`, path `AnnotationError.swift`),
+  `PBXBuildFile` (`A100000000000000000000TJ`), `PBXFileReference`
+  (`A10000000000000000000217`, path `PencilCanvasOverlay.swift`),
+  new `PBXGroup` (`A100000000000000000000GF`, `AnnotationEngine`)
+  appended to the `Services` `PBXGroup` (`G7`), `AnnotationError.swift`
+  and `PencilCanvasOverlay.swift` added to the new subgroup, and both
+  entries added to the `InSummary` target's `PBXSourcesBuildPhase`
+  (`B1`). `plutil -lint` reports `OK`.
+
+**Public surface**
+
+| Symbol | Declaration | Behaviour |
+| --- | --- | --- |
+| `PencilCanvasOverlay` (struct) | `@MainActor` `UIViewRepresentable` | Hosts the `PKCanvasView` above the PDF reader; `pageIndex`, `pageAnnotation?`, `document?`, `modelContext` |
+| `PencilCanvasOverlay.defaultHighlighterTool` | `static let PKInkingTool` | `.marker` ink + translucent yellow color + 20pt width (the PencilKit highlighter analog) |
+| `PencilCanvasOverlay.makeCanvasView()` | `func` | Builds a `PKCanvasView` configured with the pencil-only policy, the highlighter default tool, the active `PageAnnotation`'s replayed drawing, and the coordinator as delegate |
+| `PencilCanvasOverlay.clear(canvas:)` | `func` | Persists empty bytes on `PageAnnotation.drawingData` |
+| `PencilCanvasOverlay.replayDrawing()` | `func` | Returns the `PKDrawing` that would be set on the canvas right now — used by the focused test suite to pin the byte-identical round-trip at the data layer |
+| `PencilCanvasOverlay.lastError` | `var AnnotationError?` | Recoverable-error channel |
+| `PencilCanvasOverlayCoordinator` (class) | `@MainActor final class NSObject PKCanvasViewDelegate` | Owns state (the bound `PageAnnotation`, the last error); delegate hook for `canvasViewDrawingDidChange` |
+
+**Implementation summary**
+
+- `PencilCanvasOverlay` (struct) holds a `PencilCanvasOverlayCoordinator` and forwards test-relevant methods to it.
+- `PencilCanvasOverlayCoordinator.attach(pageIndex:pageAnnotation:)` is the single mutation point: lazy-upserts the `PageAnnotation` row when the supplied reference is `nil`, then calls `replayDrawing()` so the canvas reflects any persisted bytes.
+- `replayDrawing()` calls `PKDrawing(data:)` on the bound `annotation.drawingData`; on decode failure it sets `lastError = .drawingDecodeFailed`, renders an empty drawing, and preserves the unreadable bytes verbatim.
+- `canvasViewDrawingDidChange` writes `canvasView.drawing.dataRepresentation()` to `pageAnnotation.drawingData` and calls `modelContext.save()`. On save failure it sets `lastError = .drawingPersistenceFailed(underlying:)` and leaves the on-disk bytes unchanged (because `save()` threw before the backing store was touched).
+- **Critical ordering detail**: `canvas.drawing = replayDrawing()` is assigned **before** `canvas.delegate = self`. PencilKit fires `canvasViewDrawingDidChange` whenever the drawing is replaced (including programmatic assignments); without this ordering, an unreadable `PageAnnotation.drawingData` would be silently overwritten with the canvas's blank drawing on the first mount, breaking the decode-failure preservation contract.
+
+**GREEN verification — focused overlay tests (closest available equivalent)**
+
+```
+xcodebuild test \
+  -project /Users/sebailla/Developer/in-summary-worktrees/feat-pencilkit-ink-overlay/InSummary.xcodeproj \
+  -scheme InSummary \
+  -destination 'platform=iOS Simulator,name=iPad Pro 13-inch (M5),OS=26.5' \
+  -only-testing:InSummaryTests/PencilCanvasOverlayTests
+```
+
+**Observed result (7/7 green in 0.081 sec)** — see the TDD Cycle Evidence table below for the per-test breakdown.
+
+**Regression sanity check — full XCTest suite (pre-task-3.4)**
+
+```
+xcodebuild test \
+  -project /Users/sebailla/Developer/in-summary-worktrees/feat-pencilkit-ink-overlay/InSummary.xcodeproj \
+  -scheme InSummary \
+  -destination 'platform=iOS Simulator,name=iPad Pro 13-inch (M5),OS=26.5'
+```
+
+```
+Test Suite 'All tests' passed at 2026-09-13 22:34:52.105.
+         Executed 88 tests, with 0 failures (0 unexpected) in 0.343 (0.366) seconds
+
+** TEST SUCCEEDED **
+```
+
+88 tests, 0 failures (the 7 new `PencilCanvasOverlayTests` + 81 pre-existing tests).
+
+### Task 3.4 RED — `PDFPageChangeObserverTests.swift`
+
+**Files added**
+
+- `InSummaryTests/PDFPageChangeObserverTests.swift` (new, 5 test methods).
+
+**Files modified (test-infrastructure wiring)**
+
+- `InSummary.xcodeproj/project.pbxproj` — added `PBXBuildFile`
+  (`A100000000000000000000TK`), `PBXFileReference`
+  (`A10000000000000000000218`, path `PDFPageChangeObserverTests.swift`),
+  entry to the `InSummaryTests` `PBXGroup`, and entry to the test
+  target's `PBXSourcesBuildPhase`. `plutil -lint` reports `OK`.
+
+**Coverage authored (5 test methods)**
+
+| Method | Behaviour pinned |
+| --- | --- |
+| `test_roundTripPreservesByteIdenticalPayloadsAcrossPages` | After `handlePageChange(to:)` runs the cycle 1 → 2 → 1, both `PageAnnotation` rows carry the bytes originally captured from the live canvas |
+| `test_fiveNavigationCyclesAreStable` | After cycles 2..5, both pages' `drawingData` bytes match the cycle-1 bytes |
+| `test_valueCoalescingDropsRedundantNotifications` | `pageActivated` fires once per *change* of `currentPageIndex`, not once per call to `handlePageChange(to:)` |
+| `test_coordinatorReinitKeepsStoredDrawings` | A fresh observer instantiated against the same container recovers the persisted drawings through its `annotation(forPage:)` lookup |
+| `test_saveFailureSurfacesErrorAndDoesNotMutateLastObservedPageIndex` | An injected `saveFn` that throws surfaces `.drawingPersistenceFailed(underlying:)` and leaves `lastObservedPageIndex` at the outgoing page index (fail-fast contract) |
+
+**RED verification**
+
+`Cannot find 'PDFPageChangeObserver' in scope` (×6, cascading from the unresolved type at the closure-typed init parameters). The strict-TDD RED signal is exactly this.
+
+### Task 3.5 GREEN — `PDFPageChangeObserver.swift`
+
+**Files added**
+
+- `InSummary/Services/AnnotationEngine/PDFPageChangeObserver.swift`
+  (new, 266 lines).
+
+**Imports**: `Foundation`, `SwiftData`, `PencilKit`. No `PDFKit` import.
+Module-internal types (`DocumentItem`, `PageAnnotation`, `AnnotationError`)
+are reachable via the InSummary target's source graph; no public surface
+is added beyond the production class itself.
+
+**Public surface (matches the spec verbatim)**
+
+| Symbol | Declaration | Behaviour |
+| --- | --- | --- |
+| `PDFPageChangeObserver` (final class) | `@MainActor final class` | Owns the cross-page save/load cycle |
+| `init(document:, modelContext:, captureOutgoingDrawing:, pageActivated:, saveFn:)` | `init(...)` | Captures the closures used to drive the observer without referencing `PDFView` or `NotificationCenter` |
+| `handlePageChange(to:)` | `func` | Drops redundant notifications; captures, persists, and activates the next page |
+| `annotation(forPage:)` | `func` | Looks up or lazy-upserts the `(document.id, pageIndex)` row |
+| `lastObservedPageIndex` | `private(set) Int?` | Advanced only on a successful navigation |
+| `lastError` | `private(set) AnnotationError?` | Recoverable-error channel |
+| `document`, `modelContext` | `let` | Held strongly so the observer's lifetime equals the SwiftUI shell's reader lifetime |
+
+**Implementation summary**
+
+- `handlePageChange(to:)` enforces four ordered steps:
+  1. Drop if `newPageIndex == lastObservedPageIndex` (value-coalescing).
+  2. Capture the outgoing page's `PKDrawing` via the injected closure, persist it on the matching `PageAnnotation` (lazy-upserted if missing), and call the injected `saveFn()`. A save failure sets `lastError` and returns **without** mutating `lastObservedPageIndex` — the fail-fast contract keeps the overlay bound to the last successful page.
+  3. Invoke the injected `pageActivated(newPageIndex)` closure so the overlay can load the incoming page's drawing into the canvas.
+  4. Advance `lastObservedPageIndex` to `newPageIndex`.
+- `annotation(forPage:)` uses a `#Predicate`-scoped `FetchDescriptor<PageAnnotation>` that filters by both `pageIndex` AND `document?.id == document.id` — the `(document, pageIndex)` compound key is the canonical scope, so the observer works correctly when the SwiftData container holds `PageAnnotation` rows for other documents.
+- `saveFn` defaults to `{ try modelContext.save() }` so production code writes through the SwiftData store; the test suite injects a throwing closure to pin the fail-fast contract deterministically.
+
+**Phase 2 invariants honoured (per the file-header doc comment)**: `@MainActor`, no `PDFKit` import, no public SwiftData model imports beyond `DocumentItem.id` and `PageAnnotation`, local-only (no networking primitives), typed error surface, value-coalescing on `currentPageIndex`, fail-fast on persistence failures.
+
+### Task 3.6 GREEN — PBX wiring
+
+**Files modified**
+
+- `InSummary.xcodeproj/project.pbxproj` — added `PBXBuildFile`
+  (`A100000000000000000000TL`), `PBXFileReference`
+  (`A10000000000000000000219`, path `PDFPageChangeObserver.swift`),
+  added to the existing `AnnotationEngine` `PBXGroup` (`GF`), and
+  entry in the `InSummary` target's `PBXSourcesBuildPhase` (`B1`).
+  `plutil -lint` reports `OK`. No other build phase, no other target,
+  no other file is touched.
+
+The three production files now share the `AnnotationEngine` PBXGroup
+hierarchy (`InSummary` → `Services` → `AnnotationEngine`) co-located
+with the `PDFEngine` group, mirroring the spec's "single source of
+truth per capability" convention.
+
+### Task 3.7 REFACTOR
+
+**Files modified**
+
+- `InSummary/Services/AnnotationEngine/PencilCanvasOverlay.swift`
+  — extracted a single private helper `applyCanvasConfiguration(to:assignDrawing:)`
+  in `PencilCanvasOverlayCoordinator` so the pencil-only drawing
+  policy, the highlighter default tool, and the drawing+delegate
+  assignment live in exactly one place. Both `makeCanvasView()` and
+  `updateCanvas(_:)` now delegate the configuration to this helper.
+  No test was modified, no PBX entry was modified.
+
+**Behaviour preservation**: every focused test (`PencilCanvasOverlayTests`
+7/7 + `PDFPageChangeObserverTests` 5/5 = 12/12) stays green after the
+helper extraction. The `assignDrawing` parameter is reserved for
+future callers that want to configure the canvas without replacing
+the drawing — the helper unconditionally assigns the replayed
+drawing today and sets the delegate, matching the prior behaviour
+byte-for-byte.
+
+The `NotificationCenter` half of the spec's REFACTOR clause
+("pull the `NotificationCenter` subscription into the view layer
+(added in PR #4) so the observer remains testable in isolation")
+is already satisfied by the production design: the observer is
+driven by `handlePageChange(to: Int)`, never by a
+`NotificationCenter` subscription. PR #4's `ReaderContainerView`
+will route the `PDFView`'s page-change publisher to
+`observer.handlePageChange(to:)`. No additional observer code is
+required to satisfy this clause.
+
+### Task 3.8 VERIFY
+
+**Forbidden-capability grep guard (task 3.8 acceptance gate)**
+
+The same 14-pattern blocklist from task 2.7, re-scoped to
+`InSummary/Services/AnnotationEngine/`:
+
+```
+rg -n --type swift \
+   -e 'NSPersistentCloudKitContainer' \
+   -e 'CKContainer' \
+   -e 'CKDatabase' \
+   -e 'CKAsset' \
+   -e 'cloudKitDatabase' \
+   -e 'CloudSyncMonitor' \
+   -e 'RemoteNotification' \
+   -e '.fileImporter' \
+   -e 'UIDocumentPickerViewController' \
+   -e 'PHPickerViewController' \
+   -e 'URLSession.shared' \
+   -e 'NWConnection' \
+   -e 'NWPath' \
+   -e 'https?://' \
+   InSummary/Services/AnnotationEngine
+```
+
+**Observed result (zero matches, `rg` exit code 1)**:
+
+```
+$ rg ... InSummary/Services/AnnotationEngine
+(no output; exit 1)
+```
+
+The `AnnotationEngine` directory passes the same blocklist as the
+`PDFEngine` directory. No remote-capability surface was introduced.
+
+**Focused XCTest gate (task 3.8 acceptance gate)** — closest available equivalent:
+
+```
+xcodebuild test \
+  -project /Users/sebailla/Developer/in-summary-worktrees/feat-pencilkit-ink-overlay/InSummary.xcodeproj \
+  -scheme InSummary \
+  -destination 'platform=iOS Simulator,name=iPad Pro 13-inch (M5),OS=26.5' \
+  -only-testing:InSummaryTests/PencilCanvasOverlayTests \
+  -only-testing:InSummaryTests/PDFPageChangeObserverTests
+```
+
+**Observed result (12/12 green in 0.095 sec)**:
+
+```
+Test Suite 'PencilCanvasOverlayTests' passed at 2026-09-13 22:39:44.408.
+         Executed 7 tests, with 0 failures (0 unexpected) in 0.053 (0.054) seconds
+Test Suite 'PDFPageChangeObserverTests' passed at 2026-09-13 22:39:44.408.
+         Executed 5 tests, with 0 failures (0 unexpected) in 0.040 (0.041) seconds
+Test Suite 'InSummaryTests.xctest' passed at 2026-09-13 22:39:44.409.
+         Executed 12 tests, with 0 failures (0 unexpected) in 0.093 (0.097) seconds
+
+** TEST SUCCEEDED **
+```
+
+Per-test breakdown (from the verbose log):
+
+| Test | Result |
+| --- | --- |
+| `test_clearCanvasPersistsEmptyBytes` | ✅ passed |
+| `test_decodeFailureSurfacesRecoverableErrorAndPreservesUnreadableBytes` | ✅ passed |
+| `test_defaultToolIsHighlighter` | ✅ passed |
+| `test_defaultToolRemainsHighlighterAfterReplay` | ✅ passed |
+| `test_drawingPolicyIsPencilOnly` | ✅ passed |
+| `test_lazyUpsertMissingPageAnnotationRendersBlankCanvas` | ✅ passed |
+| `test_replayByteIdenticalWhenDrawingDataExists` | ✅ passed |
+| `test_coordinatorReinitKeepsStoredDrawings` | ✅ passed |
+| `test_fiveNavigationCyclesAreStable` | ✅ passed |
+| `test_roundTripPreservesByteIdenticalPayloadsAcrossPages` | ✅ passed |
+| `test_saveFailureSurfacesErrorAndDoesNotMutateLastObservedPageIndex` | ✅ passed |
+| `test_valueCoalescingDropsRedundantNotifications` | ✅ passed |
+
+**Regression sanity check — full XCTest suite**:
+
+```
+xcodebuild test \
+  -project /Users/sebailla/Developer/in-summary-worktrees/feat-pencilkit-ink-overlay/InSummary.xcodeproj \
+  -scheme InSummary \
+  -destination 'platform=iOS Simulator,name=iPad Pro 13-inch (M5),OS=26.5'
+```
+
+```
+Test Suite 'All tests' passed at 2026-09-13 22:38:34.083.
+         Executed 93 tests, with 0 failures (0 unexpected) in 0.268 (0.312) seconds
+
+** TEST SUCCEEDED **
+```
+
+93 tests, 0 failures (the 7 new `PencilCanvasOverlayTests` + 5 new
+`PDFPageChangeObserverTests` + 81 pre-existing tests). The
+`AnnotationEngine` source surface does not regress any prior slice.
+
+**Clean-build re-verification (RESOLVE-CHECKUP)**:
+
+```
+xcodebuild clean test \
+  -project InSummary.xcodeproj \
+  -scheme InSummary \
+  -destination 'platform=iOS Simulator,name=iPad Pro 13-inch (M5),OS=26.5' \
+  -only-testing:InSummaryTests/PencilCanvasOverlayTests \
+  -only-testing:InSummaryTests/PDFPageChangeObserverTests
+```
+
+```
+Test Suite 'PDFPageChangeObserverTests' passed
+         Executed 5 tests, with 0 failures (0 unexpected) in 0.043 (0.044) seconds
+Test Suite 'PencilCanvasOverlayTests' passed
+         Executed 7 tests, with 0 failures (0 unexpected) in 0.052 (0.054) seconds
+Test Suite 'InSummaryTests.xctest' passed
+         Executed 12 tests, with 0 failures (0 unexpected) in 0.095 (0.099) seconds
+
+** TEST SUCCEEDED **
+```
+
+Clean from scratch, 12/12 green. The strict-TDD GREEN signal survives
+a clean rebuild.
+
+### TDD Cycle Evidence (Slice 3 cumulative)
+
+| Task | Test file | Layer | RED | GREEN | TRIANGULATE | REFACTOR |
+| --- | --- | --- | --- | --- | --- | --- |
+| 3.1 | `InSummaryTests/PencilCanvasOverlayTests.swift` | Unit (`XCTestCase`) | ✅ Compile fails on 6 unresolved `PencilCanvasOverlay` references + 1 unresolved `AnnotationError` reference + cascade errors (downstream `Equatable` and `.highlighter` errors are symptoms of the missing types and resolve once the production symbols exist) | ✅ Task 3.2 + 3.3 — 7/7 focused green on `iPad Pro 13-inch (M5),OS=26.5`; full 88-test suite green | ✅ Two `default tool` tests pin the highlighter analog at fresh-mount and post-replay | ⏳ Pending task 3.7 |
+| 3.2 | `InSummaryTests/PencilCanvasOverlayTests.swift` (verified) | Unit | (See 3.1) | ✅ 1 `Cannot find 'AnnotationError'` + 1 cascade error resolved | ✅ Each named case has ≥1 dedicated test | N/A |
+| 3.3 | `InSummaryTests/PencilCanvasOverlayTests.swift` (verified) | Unit | (See 3.1) | ✅ 7/7 focused green on `iPad Pro 13-inch (M5),OS=26.5`; full 88-test suite green | ✅ Decode-failure + clear-clears-everything pin different rows of the same SwiftData column; default-tool-pins cover both fresh-mount and post-replay | ✅ Task 3.7 — `applyCanvasConfiguration(to:assignDrawing:)` extracted; 7/7 stayed green |
+| 3.4 | `InSummaryTests/PDFPageChangeObserverTests.swift` | Unit (`XCTestCase`) | ✅ Compile fails on 6 unresolved `PDFPageChangeObserver` references + cascade | ✅ Task 3.5 — 5/5 focused green; full 93-test suite green | ✅ Two round-trip tests (1→2→1 and 5 cycles) pin the same byte-stable contract at different cycle counts | N/A |
+| 3.5 | `InSummaryTests/PDFPageChangeObserverTests.swift` (verified) | Unit | (See 3.4) | ✅ 5/5 focused green on `iPad Pro 13-inch (M5),OS=26.5`; full 93-test suite green | ✅ Save-failure + value-coalescing tests pin the fail-fast contract from independent angles | N/A |
+| 3.6 | `InSummaryTests/PDFPageChangeObserverTests.swift` (verified) | Unit | (See 3.4) | ✅ Wiring reconciled; clean-build re-run produces 12/12 green | ✅ Wiring verified end-to-end | N/A |
+| 3.7 | `InSummaryTests/PencilCanvasOverlayTests.swift` (unchanged) + `InSummaryTests/PDFPageChangeObserverTests.swift` (unchanged) | Unit | N/A — REFACTOR preserves behaviour | N/A | N/A | ✅ Helper extraction is behaviour-preserving; 12/12 stayed green |
+| 3.8 | (no new test file) | (verification only) | N/A — additive source + wiring only | ✅ Grep guard zero-matches; 12/12 focused green; full 93-test suite green; clean-build re-run produces 12/12 green | ✅ Each named grep pattern has 0 matches; each focused test passes | N/A |
+
+### Test summary (Slice 3 cumulative)
+
+- **Tests written**: 12 (`PencilCanvasOverlayTests` 7 + `PDFPageChangeObserverTests` 5)
+- **Tests passing**: 12 (all GREEN on `iPad Pro 13-inch (M5),OS=26.5`)
+- **Layers used**: Unit (12)
+- **Approval tests** (refactoring): none — the original tests act as the approval net for the REFACTOR cycle
+- **Pure functions created**: 1 (`applyCanvasConfiguration(to:assignDrawing:)` in the coordinator)
+
+### Slice 3 task gate state (post-verify)
+
+| Gate | Required | Observed | Pass |
+| --- | --- | --- | --- |
+| Forbidden-capability grep guard scoped to `InSummary/Services/AnnotationEngine/` | Zero matches across the 14-pattern blocklist | Zero matches; `rg` exit code 1 | ✅ |
+| Focused `PencilCanvasOverlayTests` + `PDFPageChangeObserverTests` suite green on `iPad Pro 13-inch (M5),OS=26.5` | 12/12 pass | 12/12 pass in 0.095 sec | ✅ |
+| Persisted task artifact (`tasks.md` + `tasks-es.md`) records tasks 3.1–3.8 as `[x]` | Both files flipped | Both flipped; only the 3.1–3.8 rows moved | ✅ |
+| Spanish mirror preserved | `tasks-es.md` mirrors the 3.1–3.8 flips | Mirrored | ✅ |
+| `PDFKit` import guard in `InSummary/Services/AnnotationEngine/` | Zero matches | `rg -n "import PDFKit"` returns exit 1 (no matches) | ✅ |
+| Production `import` graph stays inside first-party local-only frameworks | `Foundation`, `SwiftData`, `PencilKit`, `SwiftUI`, `UIKit` only | Confirmed via `grep -n '^import'` | ✅ |
+| Authority / lifecycle | No acquire, settle, reset, commit, push, or PR-open | Confirmed; this slice returns `next_recommended: parent-lifecycle` | ✅ |
+
+All slice 3 acceptance gates pass. The slice is ready for the parent
+to commit, push, and open PR #3 against PR #2's branch
+(`feat/pdf-engine`). The strict-TDD RED → GREEN → TRIANGULATE →
+REFACTOR evidence is captured above.
+
+### Rollback boundary
+
+**What can be reverted without touching any other slice**:
+
+- Delete `InSummary/Services/AnnotationEngine/` (the new directory
+  with `AnnotationError.swift`, `PDFPageChangeObserver.swift`, and
+  `PencilCanvasOverlay.swift`).
+- Delete `InSummaryTests/PencilCanvasOverlayTests.swift` and
+  `InSummaryTests/PDFPageChangeObserverTests.swift`.
+- Remove the PBX entries this slice added (file references
+  `A10000000000000000000215`, `A10000000000000000000216`,
+  `A10000000000000000000217`, `A10000000000000000000218`,
+  `A10000000000000000000219`; build files `A100000000000000000000TH`,
+  `A100000000000000000000TI`, `A100000000000000000000TJ`,
+  `A100000000000000000000TK`, `A100000000000000000000TL`; the
+  `AnnotationEngine` PBXGroup `A100000000000000000000GF`).
+- Revert the `tasks.md` and `tasks-es.md` 3.1–3.8 flips and this
+  `apply-progress.md` entry.
+
+The overlay and observer are **not yet referenced anywhere outside
+their own test target** (PR #4 wires them into `ReaderContainerView`).
+The rollback is local to this slice — no prior or future slice is
+disturbed. The earlier slice-1 / slice-2 files are untouched.
+
+### Diff line count vs. budget (honest assessment)
+
+**Authored insertions** (production + tests + pbxproj + tasks):
+
+| File | Insertions | Notes |
+| --- | --- | --- |
+| `InSummary/Services/AnnotationEngine/AnnotationError.swift` | 63 | Header comment + 2-case enum |
+| `InSummary/Services/AnnotationEngine/PencilCanvasOverlay.swift` | 445 | Header + struct + coordinator class; highlighter-deviation documentation is heavy |
+| `InSummary/Services/AnnotationEngine/PDFPageChangeObserver.swift` | 266 | Header + observer class; section doc comments |
+| `InSummaryTests/PencilCanvasOverlayTests.swift` | 437 | 7 test methods + helpers + deviation documentation |
+| `InSummaryTests/PDFPageChangeObserverTests.swift` | 446 | 5 test methods + helpers + per-test rationale |
+| `InSummary.xcodeproj/project.pbxproj` | 30 (net +28) | 5 PBXBuildFile, 4 PBXFileReference, 1 PBXGroup, 1 PBXGroup children-update, 5 PBXSourcesBuildPhase entries |
+| `openspec/changes/pdf-reader-pencilkit-ink-recovery/tasks.md` | 12 (net +10) | 8 checkbox flips (3.1–3.8) |
+| `documents-es/.../tasks-es.md` | 12 (net +10) | 8 checkbox flips mirrored |
+| **Authored total** | **~1711 insertions, 7 deletions** | |
+
+**400-line budget assessment**: the **authored additions alone** total
+~1711 lines (12 tests + 3 production files + 1 error file + pbxproj +
+tasks). The configured PR budget is 400 lines per PR. The slice is
+**over the budget by ~1311 lines**, which is **>3× the budget**.
+
+**Why this is an honest `size:exception`, not a slicing opportunity**:
+
+- The strict-TDD evidence (per-test rationale, deviation
+  documentation, decode-failure ordering comment) is mandatory under
+  the configured `openspec/config.yaml`. Compressing it would weaken
+  the safety net the next slice author inherits.
+- The PencilKit highlighter-deviation documentation is required
+  because `PKInkingTool.InkType.highlighter` does not exist in
+  PencilKit iOS 26 (the available cases are `pen`, `pencil`,
+  `marker`, `monoline`, `fountainPen`, `watercolor`, `crayon`,
+  `reed`). Future maintainers MUST understand why the test asserts
+  `.marker` + translucent yellow + ≤ 0.5 alpha, not `.highlighter`.
+- The byte-identical round-trip deviation (`PKDrawing(data:).dataRepresentation()`
+  is not byte-stable across a fresh-construction → archive → decode →
+  re-archive cycle) requires a coordinator + view-layer split to
+  avoid an in-place mutation of `PageAnnotation.drawingData` when
+  the canvas first mounts. Both halves of that split are documented.
+- The slice is the smallest cohesive unit that satisfies the spec
+  contract: the overlay's `PKCanvasView` setup, the
+  `PencilCanvasOverlayCoordinator` state owner, the
+  `PDFPageChangeObserver` save/load bridge, and the typed error
+  surface are all consumed together by PR #4's `ReaderContainerView`.
+  Splitting them across two child PRs would leave PR #4 importing
+  half a feature.
+
+**Recommendation**: per the `chained-pr` skill rule
+("Splitting is bounded: after one honest slicing pass, if no cohesive
+work-unit split fits the budget, stop and report the smallest honest
+count with a `size:exception` recommendation."), this slice should
+land as **PR #3** with an explicit `size:exception` tag in the PR
+body. The maintainer should accept the exception because:
+
+1. The overage is dominated by documentation (test rationale +
+   deviation commentary) and the coordinator split — not by loose
+   code or unreviewed surface.
+2. The strict-TDD evidence is the safety net the next slice
+   author inherits; trimming it would weaken the chain.
+3. The slice is the smallest cohesive unit for PR #4 to consume.
+
+The PR body should record: "Estimated authored insertions: ~1711
+lines, ~13 tests written. 400-line budget exceeded by ~1311 lines
+(>3×). Justification: strict-TDD evidence is mandatory per
+`openspec/config.yaml`; deviation documentation is required to
+explain the highlighter analog (`PKInkingTool.InkType.highlighter`
+does not exist in PencilKit iOS 26) and the byte-identical
+round-trip quirk (`PKDrawing(data:).dataRepresentation()` is not
+byte-stable across archive round-trips)."
+
+### Deviations / notes (Slice 3)
+
+ 1. **PencilKit highlighter deviation.** `PKInkingTool.InkType` on
+    iOS 26 has no `highlighter` case. The available cases are `pen`,
+    `pencil`, `marker`, `monoline`, `fountainPen`, `watercolor`,
+    `crayon`, `reed`. The highlighter behavior the spec asks for is
+    achieved by `.marker` ink with a translucent yellow color
+    (`UIColor.systemYellow.withAlphaComponent(0.4)`) and a 20-point
+    stroke width. The combination is captured by
+    `PencilCanvasOverlay.defaultHighlighterTool` so the configuration
+    is the single source of truth for the reader's default
+    highlighter; the focused test
+    `test_defaultToolIsHighlighter` asserts `inkType == .marker` AND
+    `alpha ≤ 0.5`. The spec's literal `PKInkingTool.InkType.highlighter`
+    cannot be satisfied because the case does not exist; the
+    semantically equivalent marker + translucent yellow is the
+    documented PencilKit highlighter analog.
+
+ 2. **PKDrawing archive byte-stability deviation.** A fresh
+    `PKStroke` constructed via
+    `PKStroke(ink:path:transform:mask:)` (no explicit `randomSeed`)
+    produces a non-canonical first-byte form (~297 bytes for one
+    stroke with two control points; ~309 bytes for three). After a
+    `PKDrawing(data: archivedBytes)` round-trip, the re-encoded
+    archive is canonical (~319 bytes / ~331 bytes). The same effect
+    appears in `PKCanvasView` after the first layout pass (Apple's
+    "RemoteRecognizer" canonicalises the archive). The
+    byte-identical round-trip contract is therefore pinned at the
+    **stroke-geometry level** in
+    `test_replayByteIdenticalWhenDrawingDataExists`
+    (stroke count + first-stroke path-point count) and at the
+    **SwiftData-row level** in
+    `test_roundTripPreservesByteIdenticalPayloadsAcrossPages`
+    (the bytes the test authored via `PKDrawing.dataRepresentation()`
+    are preserved exactly when the observer re-reads the row). Both
+    deviations are documented in the test files' doc comments.
+
+ 3. **Coordinator split.** `PencilCanvasOverlay` (the struct
+    consumed by SwiftUI) holds a `PencilCanvasOverlayCoordinator`
+    instance and forwards test-relevant methods to it. The
+    coordinator is the `final class` that owns state (the bound
+    `PageAnnotation`, the last error) and the canvas-view delegate
+    callback. This split lets the test surface reach the
+    coordinator's state directly without going through
+    `UIViewRepresentable`'s `Context` channel — the same pattern
+    `PDFReaderCoordinator` uses (the coordinator exposes its
+    `pdfView` publicly; tests reach the view through the
+    coordinator). The split adds ~150 lines of doc comment + class
+    declaration; without it, the tests would either need to mount
+    a SwiftUI tree (slow, brittle) or rely on private access (not
+    possible across files).
+
+ 4. **Canvas-mount delegate ordering.** `makeCanvasView()` assigns
+    `canvas.drawing = replayDrawing()` **before** setting
+    `canvas.delegate = self`. Without this ordering, PencilKit's
+    first `canvasViewDrawingDidChange` callback (which fires on
+    every `canvas.drawing` assignment, including programmatic ones)
+    would overwrite `PageAnnotation.drawingData` with the canvas's
+    blank drawing on first mount. The test
+    `test_decodeFailureSurfacesRecoverableErrorAndPreservesUnreadableBytes`
+    would fail because the unreadable bytes would be silently
+    replaced by empty bytes from `PKDrawing().dataRepresentation()`.
+    The ordering is documented in the helper's doc comment so a
+    future maintainer does not "fix" it.
+
+ 5. **`saveFn` injection point.** The observer's `init` accepts an
+    optional `saveFn: (() throws -> Void)?` closure, defaulting to
+    `{ try modelContext.save() }`. Production code writes through
+    the default; the test suite injects a throwing closure to pin
+    the fail-fast contract deterministically. The injection point
+    is the smallest possible surface for that test (no `MockModelContext`
+    subclass, no `URLProtocol` stub, no test-only configuration on
+    `ModelConfiguration`).
+
+ 6. **Destination substitution.** The configured destination
+    `iPad Pro 13-inch (M4),OS=26.0` is not installed on this host
+    (only `iOS 26.5` is). The closest installed equivalent is
+    `iPad Pro 13-inch (M5),OS=26.5` — same iPad Pro 13-inch form
+    factor, OS bumped 26.0 → 26.5. The substitution preserves the
+    strict-TDD contract and matches the substitution documented in
+    deviations #1 (task 1.1) and #49 (task 2.6).
+
+ 7. **Parent-held native SDD attempt honored.** This slice
+    implemented tasks 3.1–3.8 only. No acquire (the parent already
+    acquired the attempt with the inherited token), settle, reset,
+    commit, push, or PR-open actions were taken. The worktree's
+    working tree now carries the 3 production files in
+    `InSummary/Services/AnnotationEngine/`, the 2 test files in
+    `InSummaryTests/`, the PBX wiring, the task 3.1–3.8 checkbox
+    flips in `tasks.md` and `tasks-es.md`, and this
+    `apply-progress.md` entry. The persisted task artifact records
+    tasks 3.1–3.8 as `[x]` only; tasks 0.4, 0.5, 4.1–4.9, 5.1–5.5
+    remain `[ ]` and are owned by parent lifecycle.
+
+### Out of scope (still deferred)
+
+- Tasks 4.1–4.9 (`pdf-reader-wiring`): `PDFViewRepresentable`,
+  `ReaderContainerView` (v1 + v2), `LibraryGridView` modification,
+  `ReaderIntegrationTests`, and the full-suite VERIFY gate.
+- Tasks 5.1–5.5 (tracker close-out): rebasing the tracker branch,
+  promoting the tracker PR, the verification report, and the
+  archive move.
+- The Spanish mirror for the design and specs (the docs-es work
+  belongs to slice 5 / the tracker close-out).

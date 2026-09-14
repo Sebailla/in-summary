@@ -251,35 +251,35 @@ on PR #1 (fixture), PR #2 (coordinator), and PR #3 (overlay + observer).
 It targets PR #3 because the chain must remain linear — it is the
 terminal child PR before the tracker close-out.
 
-- [ ] 4.1 Add `InSummary/Views/Reader/PDFViewRepresentable.swift`
+- [x] 4.1 Add `InSummary/Views/Reader/PDFViewRepresentable.swift`
       (`UIViewRepresentable` around `PDFView`; hands the `pdfView`
       reference to the coordinator after `makeUIView`).
       <!-- sdd-owner: implementation -->
-- [ ] 4.2 Add `InSummary/Views/Reader/ReaderContainerView.swift` (v1):
+- [x] 4.2 Add `InSummary/Views/Reader/ReaderContainerView.swift` (v1):
       SwiftUI shell hosting `PDFViewRepresentable(coordinator:)` plus
       a recoverable `PDFReaderError` banner. **Do not** reference
       `PencilCanvasOverlay` or `PDFPageChangeObserver` in v1; they are
       wired in step 4.4.
       <!-- sdd-owner: implementation -->
-- [ ] 4.3 Modify `InSummary/Views/Library/LibraryGridView.swift`: the
+- [x] 4.3 Modify `InSummary/Views/Library/LibraryGridView.swift`: the
       seed `DocumentItem` row becomes a `NavigationLink` to
       `ReaderContainerView(document:)`; every other row surfaces the
       recoverable "not supported in this build" alert. Keep the change
       to the library file under ~30 lines.
       <!-- sdd-owner: implementation -->
-- [ ] 4.4 Extend `ReaderContainerView` (v2): add
+- [x] 4.4 Extend `ReaderContainerView` (v2): add
       `PencilCanvasOverlay(pageIndex:, pageAnnotation:, modelContext:)`
       to the body, add an `AnnotationError` banner, construct
       `PDFPageChangeObserver` against the live `PDFView`, and subscribe
       to the coordinator's page-change publisher via `.onReceive` so
       each event routes to `observer.handlePageChange(to:)`.
       <!-- sdd-owner: implementation -->
-- [ ] 4.5 Add a `#Preview` to `ReaderContainerView.swift` that mounts
+- [x] 4.5 Add a `#Preview` to `ReaderContainerView.swift` that mounts
       against `PreviewContainer.previewContainer` and renders two pages
       with distinct ink so the reviewer can verify the round-trip
       visually.
       <!-- sdd-owner: implementation -->
-- [ ] 4.6 RED — add `InSummaryTests/ReaderIntegrationTests.swift`
+- [x] 4.6 RED — add `InSummaryTests/ReaderIntegrationTests.swift`
       covering: open the bundled fixture, navigate across pages, draw
       on page 1 and page 2, return to page 1, assert strokes are
       semantically preserved on both pages (byte equality is
@@ -287,14 +287,14 @@ terminal child PR before the tracker close-out.
       after replay); preference round-trip across reopening the
       document. Run against the baseline and confirm red.
       <!-- sdd-owner: implementation -->
-- [ ] 4.7 GREEN — wire the two new files into `InSummary.xcodeproj`
+- [x] 4.7 GREEN — wire the two new files into `InSummary.xcodeproj`
       *Sources* phase on the `InSummary` target.
       <!-- sdd-owner: implementation -->
-- [ ] 4.8 REFACTOR — confirm `ReaderContainerView.swift` (v2) compiles
+- [x] 4.8 REFACTOR — confirm `ReaderContainerView.swift` (v2) compiles
       with no `PDFKit` import (it only uses the coordinator and the
       overlay); isolate the banner into a small sub-view.
       <!-- sdd-owner: implementation -->
-- [ ] 4.9 VERIFY — run the **full** XCTest suite
+- [x] 4.9 VERIFY — run the **full** XCTest suite
       (`SampleBundleFixtureTests` + `PDFFixtureGeneratorTests` +
       `PDFReaderCoordinatorTests` + `PencilCanvasOverlayTests` +
       `PDFPageChangeObserverTests` + `ReaderIntegrationTests`) on the

@@ -276,25 +276,25 @@ del PR #1 (fixture), del PR #2 (coordinador) y del PR #3 (capa +
 observador). Apunta al PR #3 porque la cadena debe permanecer lineal
 — es el PR hijo terminal antes del cierre del rastreador.
 
-- [ ] 4.1 Añadir `InSummary/Views/Reader/PDFViewRepresentable.swift`
+- [x] 4.1 Añadir `InSummary/Views/Reader/PDFViewRepresentable.swift`
       (`UIViewRepresentable` alrededor de `PDFView`; entrega la
       referencia `pdfView` al coordinador tras `makeUIView`).
       <!-- sdd-owner: implementation -->
-- [ ] 4.2 Añadir `InSummary/Views/Reader/ReaderContainerView.swift`
+- [x] 4.2 Añadir `InSummary/Views/Reader/ReaderContainerView.swift`
       (v1): capa SwiftUI que aloja
       `PDFViewRepresentable(coordinator:)` más un banner
       recuperable para `PDFReaderError`. **No** referenciar
       `PencilCanvasOverlay` ni `PDFPageChangeObserver` en la v1; se
       cablean en el paso 4.4.
       <!-- sdd-owner: implementation -->
-- [ ] 4.3 Modificar `InSummary/Views/Library/LibraryGridView.swift`:
+- [x] 4.3 Modificar `InSummary/Views/Library/LibraryGridView.swift`:
       la fila del `DocumentItem` semilla se convierte en un
       `NavigationLink` a `ReaderContainerView(document:)`; cualquier
       otra fila expone la alerta recuperable "no soportado en esta
       build". Mantener el cambio al archivo de la librería bajo
       ~30 líneas.
       <!-- sdd-owner: implementation -->
-- [ ] 4.4 Extender `ReaderContainerView` (v2): añadir
+- [x] 4.4 Extender `ReaderContainerView` (v2): añadir
       `PencilCanvasOverlay(pageIndex:, pageAnnotation:, modelContext:)`
       al cuerpo, añadir un banner para `AnnotationError`, construir
       `PDFPageChangeObserver` contra el `PDFView` en vivo y suscribir
@@ -302,12 +302,12 @@ observador). Apunta al PR #3 porque la cadena debe permanecer lineal
       `.onReceive` para que cada evento enrute a
       `observer.handlePageChange(to:)`.
       <!-- sdd-owner: implementation -->
-- [ ] 4.5 Añadir un `#Preview` a `ReaderContainerView.swift` que se
+- [x] 4.5 Añadir un `#Preview` a `ReaderContainerView.swift` que se
       monte sobre `PreviewContainer.previewContainer` y renderice dos
       páginas con tinta distinta para que la persona revisora pueda
       verificar el round-trip de forma visual.
       <!-- sdd-owner: implementation -->
-- [ ] 4.6 ROJO — añadir `InSummaryTests/ReaderIntegrationTests.swift`
+- [x] 4.6 ROJO — añadir `InSummaryTests/ReaderIntegrationTests.swift`
       cubriendo: abrir el fixture empaquetado, navegar entre páginas,
       dibujar en página 1 y página 2, volver a página 1 y afirmar
       que los trazos se preservan semánticamente en ambas páginas (la
@@ -316,15 +316,15 @@ observador). Apunta al PR #3 porque la cadena debe permanecer lineal
       preferencia a través de la reapertura del documento. Ejecutar
       contra la línea base y confirmar rojo.
       <!-- sdd-owner: implementation -->
-- [ ] 4.7 VERDE — cablear los dos archivos nuevos en la fase
+- [x] 4.7 VERDE — cablear los dos archivos nuevos en la fase
       *Sources* de `InSummary.xcodeproj` sobre el objetivo
       `InSummary`.
       <!-- sdd-owner: implementation -->
-- [ ] 4.8 REFACTOR — confirmar que `ReaderContainerView.swift` (v2)
+- [x] 4.8 REFACTOR — confirmar que `ReaderContainerView.swift` (v2)
       compila sin `import PDFKit` (solo usa el coordinador y la
       capa); aislar el banner en una sub-vista pequeña.
       <!-- sdd-owner: implementation -->
-- [ ] 4.9 VERIFICAR — ejecutar la suite completa de XCTest
+- [x] 4.9 VERIFICAR — ejecutar la suite completa de XCTest
       (`SampleBundleFixtureTests` + `PDFFixtureGeneratorTests` +
       `PDFReaderCoordinatorTests` + `PencilCanvasOverlayTests` +
       `PDFPageChangeObserverTests` + `ReaderIntegrationTests`) en el

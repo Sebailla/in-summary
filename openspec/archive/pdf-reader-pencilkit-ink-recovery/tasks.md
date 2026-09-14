@@ -30,9 +30,9 @@ Decision needed before apply: **No** — the chain is locked by
       `openspec/changes/pdf-reader-pencilkit-ink-recovery/`.
 - [x] 0.3 Write the Spanish mirrors under
       `documents-es/openspec/changes/pdf-reader-pencilkit-ink-recovery/`.
-- [ ] 0.4 Open the tracker PR as **draft / no-merge** with the chain
+- [x] 0.4 Open the tracker PR as **draft / no-merge** with the chain
       dependency diagram.
-- [ ] 0.5 Keep the tracker draft until every child PR (#1–#4) merges
+- [x] 0.5 Keep the tracker draft until every child PR (#1–#4) merges
       green.
       <!-- sdd-owner: parent -->
 
@@ -311,26 +311,26 @@ terminal child PR before the tracker close-out.
 
 ## 5. Tracker close-out (after all four child PRs merge green)
 
-- [ ] 5.1 Rebase (or fast-forward) `tracker/pdf-reader-pencilkit-ink-recovery`
+- [x] 5.1 Rebase (or fast-forward) `tracker/pdf-reader-pencilkit-ink-recovery`
       onto the head of PR #4's branch so the tracker carries every
       merged child.
       <!-- sdd-owner: parent -->
-- [ ] 5.2 Run the integration gates on the tracker branch (full XCTest
+- [x] 5.2 Run the integration gates on the tracker branch (full XCTest
       suite, grep guards across the whole `InSummary/` tree, airplane-mode
       acceptance) and confirm green before promoting the tracker PR out
       of draft.
       <!-- sdd-owner: parent -->
-- [ ] 5.3 Promote the tracker PR from **draft** → **ready** and merge
+- [x] 5.3 Promote the tracker PR from **draft** → **ready** and merge
       `tracker/pdf-reader-pencilkit-ink-recovery` into `main`. **Only the
       tracker ever merges into `main`; no child PR targets `main`
       directly.**
       <!-- sdd-owner: parent -->
-- [ ] 5.4 Author `openspec/changes/pdf-reader-pencilkit-ink-recovery/verification.md`
+- [x] 5.4 Author `openspec/changes/pdf-reader-pencilkit-ink-recovery/verification.md`
       with pass/fail checkboxes for each Phase 2 acceptance criterion
       from `proposal.md`, the captured log tail, the grep results, and
       the airplane-mode result.
       <!-- sdd-owner: implementation -->
-- [ ] 5.5 Archive the change: move
+- [x] 5.5 Archive the change: move
       `openspec/changes/pdf-reader-pencilkit-ink-recovery/` to
       `openspec/archive/pdf-reader-pencilkit-ink-recovery/` and append
       `openspec/archive/pdf-reader-pencilkit-ink-recovery/archive.md`

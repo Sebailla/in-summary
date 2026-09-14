@@ -5478,10 +5478,731 @@ deliverables remain untouched.
    the maintainer review can audit the source-of-truth vs the
    linter's view.
 
-### Out of scope (still deferred, owned by parent lifecycle)
+   ### Out of scope (still deferred, owned by parent lifecycle)
 
-- Tasks 0.4, 0.5 (tracker PR open + keep-draft).
-- Tasks 5.1–5.5 (tracker close-out: rebase the tracker onto PR #4,
-  the full integration gates on the tracker branch, promote the
-  tracker from draft to ready, the verification report, and the
-  archive move).
+    - Tasks 0.4, 0.5 (tracker PR open + keep-draft).
+    - Tasks 5.1–5.5 (tracker close-out: rebase the tracker onto PR #4,
+      the full integration gates on the tracker branch, promote the
+      tracker from draft to ready, the verification report, and the
+      archive move).
+
+    ---
+
+   ## Slice 5 — Tracker close-out (post-merge record of completion)
+
+    This slice records the close-out of the **tracker** side of the
+    Phase 2 chain. The implementation work (slices 1–4) has already
+    merged to `main` as PR #19 (`973415d`); the local tracker
+    integration commit is `e2f71fb`. The full XCTest suite is 95/95
+    green on `iPad Pro 13-inch (M5), iOS 26.5`; the product guard
+    sweep is clean; the diff check is clean. The configured
+    `iPad Pro 13-inch (M4), OS=26.0` simulator is not installed on
+    this host (only `iOS 26.5` is) — the substitution preserves the
+    iPad-only invariant and is documented across all four slice
+    deviations.
+
+    Per the parent prompt, **task 5.5 (archive move) is deliberately
+    deferred** and remains `[ ]`. This slice records only the six
+    completed tracker close-out tasks (0.4, 0.5, 5.1, 5.2, 5.3, 5.4)
+    based on the externally-verified evidence the parent provided.
+    The implementation-owned task 5.4 produces the new
+    `verification.md` (English) and its faithful neutral-Spanish
+    mirror `verification-es.md`. The parent-owned tasks 0.4, 0.5,
+    5.1, 5.2, and 5.3 are marked `[x]` in both task files by parent
+    authorization: the tracker PR is merged, the integration gates
+    are green, and the persisted task artifact must reflect that.
+
+   ### Task 0.4 — Open the tracker PR as **draft / no-merge** with the chain dependency diagram
+
+    **Status**: ✅ Recorded complete by parent authorization. The
+    tracker PR (#19, `tracker/pdf-reader-pencilkit-ink-recovery` →
+    `main`) was opened as draft with the chain dependency diagram
+    (`tracker ← #1 ← #2 ← #3 ← #4`) and the linear topology rule
+    documented in `proposal.md` §"Delivery".
+
+    **Files modified**
+
+    - `openspec/changes/pdf-reader-pencilkit-ink-recovery/tasks.md` —
+      flipped task 0.4 from `[ ]` to `[x]`. The `<!-- sdd-owner: parent
+      -->` marker on the sibling row (task 0.5) is preserved
+      byte-for-byte.
+    - `documents-es/openspec/changes/pdf-reader-pencilkit-ink-recovery/tasks-es.md`
+      — mirrored the 0.4 flip (`[ ]` → `[x]`) in Spanish. The
+      `<!-- sdd-owner: parent -->` marker on the sibling row (tarea
+      0.5) is preserved byte-for-byte.
+    - `openspec/changes/pdf-reader-pencilkit-ink-recovery/apply-progress.md`
+      — this entry.
+
+    **Files NOT touched**
+
+    - GitHub PR machinery (parent-held native SDD attempt owns PR
+      open / promote / merge actions). This slice does not call the
+      `gh` CLI, the GraphQL API, or any platform endpoint.
+    - `openspec/changes/pdf-reader-pencilkit-ink-recovery/proposal.md`,
+      `design.md`, `tasks.md` (other rows), `verification.md`, the
+      Spanish mirror files — all preserved byte-for-byte apart from
+      the row-level checkbox flip documented above.
+
+    **Evidence recorded**
+
+    - `git log --merges --first-parent main` shows the merge commit
+      `973415d` titled `Merge pull request #19 from
+      Sebailla/tracker/pdf-reader-pencilkit-ink-recovery`.
+    - The PR body (parent-held) referenced the chain dependency
+      diagram and the four child PRs (`feat/pdf-fixture` → `main`
+      via #1; `feat/pdf-engine` → #2; `feat/pencilkit-ink-overlay`
+      → #3; `feat/pdf-reader-wiring` → #4).
+
+    **Deviations / notes (task 0.4)**
+
+    1. **Parent-owned marker preserved byte-for-byte.** The row 0.5
+       `<!-- sdd-owner: parent -->` marker is on the sibling line
+       of the 0.4 row; the row 0.4 flip is recorded separately and
+       the marker on 0.5 is not edited. Both rows are now `[x]`.
+    2. **No PR machinery touched.** This slice does not open, edit,
+       promote, or close any GitHub PR. The tracker PR #19 was
+       opened and managed by the parent-held native SDD attempt;
+       this slice records the artifact only.
+
+   ### Task 0.5 — Keep the tracker draft until every child PR (#1–#4) merges green
+
+    **Status**: ✅ Recorded complete by parent authorization. All
+    four child PRs (#1 `feat/pdf-fixture`, #2 `feat/pdf-engine`, #3
+    `feat/pencilkit-ink-overlay`, #4 `feat/pdf-reader-wiring`)
+    merged green before the tracker PR was promoted out of draft.
+    The chain remained linear — each child PR after #1 targeted its
+    immediate predecessor's branch, only PR #1 targeted the tracker,
+    and only the tracker merged into `main`.
+
+    **Files modified**
+
+    - `openspec/changes/pdf-reader-pencilkit-ink-recovery/tasks.md` —
+      flipped task 0.5 from `[ ]` to `[x]`. The `<!-- sdd-owner: parent
+      -->` marker on this row is preserved byte-for-byte.
+    - `documents-es/openspec/changes/pdf-reader-pencilkit-ink-recovery/tasks-es.md`
+      — mirrored the 0.5 flip (`[ ]` → `[x]`) in Spanish. The
+      `<!-- sdd-owner: parent -->` marker is preserved byte-for-byte.
+    - `openspec/changes/pdf-reader-pencilkit-ink-recovery/apply-progress.md`
+      — this entry.
+
+    **Files NOT touched**
+
+    - GitHub PR machinery (parent-held). No `gh` CLI calls, no
+      GraphQL, no platform endpoint traffic in this slice.
+    - `tasks.md` (other rows), `tasks-es.md` (other rows),
+      `proposal.md`, `design.md`, `verification.md`, `verification-es.md` —
+      all preserved byte-for-byte apart from the row-level checkbox
+      flip documented above.
+
+    **Evidence recorded**
+
+    - `git log --oneline main` shows the chain in merge order:
+      `973415d` (tracker merge to `main`),
+      `1b3e5c3` (PR #4 `feat/pdf-reader-wiring`),
+      `ba49378` (PR #3 merge `feat/pencilkit-ink-overlay`),
+      `edfdb33` (PR #3 commit `feat(ink): add PencilKit annotation overlay`),
+      `0fe3fa9` (PR #2 commit `feat(pdf-engine): add local reader coordinator`),
+      `638d970` (PR #1 merge `feat/pdf-fixture`),
+      `ac9505d` (PR #1 commit `feat(pdf-fixture): add deterministic bundled fixture`),
+      and the Phase 1 baseline.
+    - The local tracker integration commit is `e2f71fb` (`chore
+      (tracker): integrate fixture child history`).
+    - Each child PR was promoted out of draft → ready → merged only
+      after its strict-TDD evidence (RED → GREEN → TRIANGULATE →
+      REFACTOR → VERIFY) was recorded in the persisted
+      `apply-progress.md`. The tracker remained draft through all
+      four child merges.
+
+    **Deviations / notes (task 0.5)**
+
+    1. **Marker preserved byte-for-byte.** The `<!-- sdd-owner: parent
+       -->` marker on row 0.5 is preserved; only the `[ ]` → `[x]`
+       flip is recorded. No other row in the file is touched.
+    2. **Draft-only enforcement is the parent's.** GitHub-side draft
+       state is managed by the parent-held native SDD attempt;
+       this slice records the artifact only.
+
+   ### Task 5.1 — Rebase (or fast-forward) `tracker/pdf-reader-pencilkit-ink-recovery` onto the head of PR #4's branch
+
+    **Status**: ✅ Recorded complete by parent authorization. The
+    tracker branch was rebased (or fast-forwarded) onto the head of
+    PR #4's branch so the tracker carries every merged child. The
+    local tracker integration commit is `e2f71fb`; the merge to
+    `main` is `973415d`.
+
+    **Files modified**
+
+    - `openspec/changes/pdf-reader-pencilkit-ink-recovery/tasks.md` —
+      flipped task 5.1 from `[ ]` to `[x]`. The `<!-- sdd-owner: parent
+      -->` marker is preserved byte-for-byte.
+    - `documents-es/openspec/changes/pdf-reader-pencilkit-ink-recovery/tasks-es.md`
+      — mirrored the 5.1 flip (`[ ]` → `[x]`) in Spanish.
+    - `openspec/changes/pdf-reader-pencilkit-ink-recovery/apply-progress.md`
+      — this entry.
+
+    **Files NOT touched**
+
+    - Git machinery (parent-held). No `git rebase`, `git merge --ff-only`,
+      or `git push` is invoked in this slice.
+    - `tasks.md` (other rows), `tasks-es.md` (other rows),
+      `proposal.md`, `design.md`, `verification.md`, `verification-es.md` —
+      all preserved byte-for-byte apart from the row-level checkbox
+      flip documented above.
+
+    **Evidence recorded**
+
+    - The local tracker integration commit `e2f71fb` carries the
+      `feat/pdf-fixture` child history onto the tracker branch.
+    - The merge commit `973415d` is the first-parent merge of the
+      tracker branch into `main`.
+    - `git log --merges --first-parent main` returns exactly the
+      tracker merge commit; no other merge commit appears in the
+      Phase 2 chain, confirming the linear topology rule.
+
+    **Deviations / notes (task 5.1)**
+
+    1. **Marker preserved byte-for-byte.** The `<!-- sdd-owner: parent
+       -->` marker is preserved; only the `[ ]` → `[x]` flip is
+       recorded.
+    2. **Rebase is parent-held.** The `git rebase` / `git merge
+       --ff-only` operations were performed by the parent-held
+       native SDD attempt; this slice records the artifact only.
+
+   ### Task 5.2 — Run the integration gates on the tracker branch
+
+    **Status**: ✅ Recorded complete by parent authorization. All
+    three integration gates passed:
+
+    1. **Full XCTest suite**: 95/95 green on `iPad Pro 13-inch (M5),
+       iOS 26.5` (closest installed equivalent of the configured
+       `iPad Pro 13-inch (M4), iOS 26.0` — substitution preserves the
+       iPad-only invariant).
+    2. **Grep guards across the whole `InSummary/` tree**: zero
+       matches for every entry in the
+       `openspec/config.yaml` `guards.blocked_substrings_in_product_code`
+       list. The full blocklist sweep covers `CKContainer`,
+       `CKDatabase`, `CKAsset`, `NSPersistentCloudKitContainer`,
+       `cloudKitDatabase`, `CloudSyncMonitor`, `RemoteNotification`,
+       `aps-environment`, `com.apple.developer.icloud*`,
+       `.fileImporter`, `UIDocumentPickerViewController`,
+       `PHPickerViewController`, `URLSession.shared`, `NWConnection`,
+       `NWPath`. The single `https?://` hit on disk is the canonical
+       CC0 1.0 Universal legal-text URL inside
+       `InSummary/Resources/Fixtures/SAMPLE-BUNDLE-LICENSE.md`
+       (documentation reference, not a runtime network call).
+    3. **Airplane-mode acceptance**: passed by construction. No
+       remote-capability call site exists in any Phase 2 module
+       directory; the XCTest suite is timing-independent; the
+       iPad Pro 13-inch simulator has no network connection in the
+       local test run.
+
+    **Files modified**
+
+    - `openspec/changes/pdf-reader-pencilkit-ink-recovery/tasks.md` —
+      flipped task 5.2 from `[ ]` to `[x]`. The `<!-- sdd-owner: parent
+      -->` marker is preserved byte-for-byte.
+    - `documents-es/openspec/changes/pdf-reader-pencilkit-ink-recovery/tasks-es.md`
+      — mirrored the 5.2 flip (`[ ]` → `[x]`) in Spanish.
+    - `openspec/changes/pdf-reader-pencilkit-ink-recovery/apply-progress.md`
+      — this entry.
+
+    **Files NOT touched**
+
+    - Test runner / grep sweeper machinery. The XCTest suite run,
+      the `rg` blocklist sweep, and the airplane-mode check were
+      executed by the parent-held native SDD attempt; this slice
+      records the artifact only.
+    - `tasks.md` (other rows), `tasks-es.md` (other rows),
+      `proposal.md`, `design.md`, `verification.md`, `verification-es.md` —
+      all preserved byte-for-byte apart from the row-level checkbox
+      flip documented above.
+
+    **Evidence recorded**
+
+    - **Full XCTest suite**: 95/95 green. Per-suite breakdown:
+      `DocumentItemTests` 16, `FolderEntityTests` 6,
+      `LibrarySeedServiceTests` 6, `PDFFixtureGeneratorTests` 9,
+      `PageAnnotationTests` 7, `PersistenceControllerTests` 4,
+      `PencilCanvasOverlayTests` 7, `PDFPageChangeObserverTests` 5,
+      `PDFReaderCoordinatorTests` 11, `ReaderIntegrationTests` 2,
+      `SampleBundleFixtureTests` 5, `StickyNoteEntityTests` 9,
+      `TextHighlightTests` 8. Total 95, 0 failures, ≈ 0.331 seconds.
+    - **Grep guards**: `rg -n --type swift` against
+      `InSummary/Services/PDFEngine`,
+      `InSummary/Services/AnnotationEngine`, `InSummary/Views/Reader`
+      returns exit code 1 (zero matches) for every blocklist entry.
+      The wider sweep against the entire `InSummary/` production
+      tree also returns zero matches. The single `https?://` hit is
+      the CC0 1.0 Universal license URL inside
+      `SAMPLE-BUNDLE-LICENSE.md` (project-decided fixture license,
+      not a runtime network call).
+    - **Airplane-mode acceptance**: no `URLSession`, `NWConnection`,
+      `NWPath`, `CKContainer`, `NSPersistentCloudKitContainer`,
+      `RemoteNotification`, or `.fileImporter` exists in any Phase 2
+      module file; the test suite has no `Task.sleep`, no
+      `DispatchQueue.main.asyncAfter`, no `Timer`, and no
+      `URLProtocol` stub. On the iPad Pro 13-inch simulator (no
+      network connection), the suite completes in ≈ 0.33 seconds
+      with 0 failures.
+    - **Destination substitution**: `iPad Pro 13-inch (M4), OS=26.0`
+      is not installed; the closest installed equivalent is
+      `iPad Pro 13-inch (M5), OS=26.5` (same form factor, OS bumped
+      26.0 → 26.5). Substitution preserves the strict-TDD contract
+      and the iPad-only invariant.
+
+    **Deviations / notes (task 5.2)**
+
+    1. **Marker preserved byte-for-byte.** The `<!-- sdd-owner: parent
+       -->` marker is preserved; only the `[ ]` → `[x]` flip is
+       recorded.
+    2. **Gates are parent-held.** The XCTest run, the `rg` blocklist
+       sweep, and the airplane-mode check were executed by the
+       parent-held native SDD attempt; this slice records the
+       artifact only. The full evidence table is captured in the
+       new `verification.md` (task 5.4 below).
+
+   ### Task 5.3 — Promote the tracker PR from **draft** → **ready** and merge into `main`
+
+    **Status**: ✅ Recorded complete by parent authorization. Tracker
+    PR #19 (`tracker/pdf-reader-pencilkit-ink-recovery` → `main`) was
+    promoted out of draft, all required status checks and reviews
+    passed, and the merge to `main` is `973415d`. Only the tracker
+    ever merged into `main`; no child PR targeted `main` directly
+    (linear topology rule honored).
+
+    **Files modified**
+
+    - `openspec/changes/pdf-reader-pencilkit-ink-recovery/tasks.md` —
+      flipped task 5.3 from `[ ]` to `[x]`. The `<!-- sdd-owner: parent
+      -->` marker is preserved byte-for-byte.
+    - `documents-es/openspec/changes/pdf-reader-pencilkit-ink-recovery/tasks-es.md`
+      — mirrored the 5.3 flip (`[ ]` → `[x]`) in Spanish.
+    - `openspec/changes/pdf-reader-pencilkit-ink-recovery/apply-progress.md`
+      — this entry.
+
+    **Files NOT touched**
+
+    - GitHub PR machinery (parent-held). No `gh pr ready`, no
+      `gh pr merge`, no GitHub API calls in this slice.
+    - `tasks.md` (other rows), `tasks-es.md` (other rows),
+      `proposal.md`, `design.md`, `verification.md`, `verification-es.md` —
+      all preserved byte-for-byte apart from the row-level checkbox
+      flip documented above.
+
+    **Evidence recorded**
+
+    - `git rev-parse HEAD` on `main` returns `973415d508a4d22a788e0408558f7875313ad3c4`,
+      titled `Merge pull request #19 from
+      Sebailla/tracker/pdf-reader-pencilkit-ink-recovery`.
+    - `git log --merges --first-parent main` returns exactly the
+      tracker merge commit; no child PR appears as a merge commit,
+      confirming the linear topology rule (`only the tracker ever
+      merges into main`).
+
+    **Deviations / notes (task 5.3)**
+
+    1. **Marker preserved byte-for-byte.** The `<!-- sdd-owner: parent
+       -->` marker is preserved; only the `[ ]` → `[x]` flip is
+       recorded.
+    2. **Promote / merge is parent-held.** The GitHub-side draft →
+       ready transition and the merge action were performed by the
+       parent-held native SDD attempt; this slice records the
+       artifact only.
+
+   ### Task 5.4 — Author `verification.md` with pass/fail checkboxes for each Phase 2 acceptance criterion
+
+    **Status**: ✅ Complete. This is the implementation-owned task
+    in the close-out group. The verification report is authored in
+    English and mirrored in Spanish under `documents-es/`.
+
+    **Files added**
+
+    - `openspec/changes/pdf-reader-pencilkit-ink-recovery/verification.md`
+      (NEW). The report contains:
+
+      1. **§1 Result** — overall verdict ✅ Pass.
+      2. **§2 Acceptance criteria** — pass/fail checkboxes for each
+         of the seven Phase 2 acceptance criteria from
+         `proposal.md` §"Acceptance (mirrors `specification.md` §6
+         Phase 2)". All seven are ✅.
+      3. **§3 Captured XCTest log tail** — the full 95/95 green run
+         with the exact `xcodebuild test` command, the per-suite
+         breakdown, and the cumulative test count
+         (Phase 1 baseline 56 + Slice 1 14 + Slice 2 11 + Slice 3 12 +
+         Slice 4 2 = 95).
+      4. **§4 Diff check** — clean: canonical fixture path honored,
+         `plutil -lint` OK, Phase 1 invariants preserved, no
+         network / remote-capability surface.
+      5. **§5 Grep guard sweep** — blocklist sweep across the three
+         Phase 2 module directories returns zero matches; the
+         pre-existing Phase 1 comments are out of scope and
+         unchanged.
+      6. **§6 Integration gates on the tracker branch** — tracker
+         PR closed, full suite green, airplane-mode acceptance
+         passed, close-out diff limited to the allowed edit
+         surfaces.
+      7. **§7 Deviations and notes** — simulator substitution,
+         PencilKit highlighter analog, `PKDrawing` archive
+         byte-stability, `usePageViewController` Bool bridge, slice
+         3 / slice 4 `size:exception` justifications, parent-held
+         SDD attempt honored.
+      8. **§8 Out of scope** — task 5.5 archive step explicitly
+         deferred per the parent prompt.
+      9. **§9 Phase 2 close-out summary** — the canonical close-out
+         statement: PR #19, commit `973415d`, four capabilities,
+         39 new tests, 95/95 green, zero blocklist matches.
+
+    - `documents-es/openspec/changes/pdf-reader-pencilkit-ink-recovery/verification-es.md`
+      (NEW). Faithful neutral-Spanish translation of `verification.md`
+      per AGENTS.md §1.1 ("faithful translation into neutral /
+      professional Spanish — not a rewrite"). Section structure is
+      byte-equal to the English version; every section heading,
+      table, code-fence, and cross-reference has a Spanish
+      counterpart.
+
+    **Files modified**
+
+    - `openspec/changes/pdf-reader-pencilkit-ink-recovery/tasks.md` —
+      flipped task 5.4 from `[ ]` to `[x]`. The `<!-- sdd-owner:
+      implementation -->` marker is preserved byte-for-byte.
+    - `documents-es/openspec/changes/pdf-reader-pencilkit-ink-recovery/tasks-es.md`
+      — mirrored the 5.4 flip (`[ ]` → `[x]`) in Spanish.
+    - `openspec/changes/pdf-reader-pencilkit-ink-recovery/apply-progress.md`
+      — this entry.
+
+    **Files NOT touched**
+
+    - Product code (`InSummary/Sources/`, `InSummary/Models/`,
+      `InSummary/Services/PDFEngine/`,
+      `InSummary/Services/AnnotationEngine/`,
+      `InSummary/Views/Reader/`, `InSummary/Views/Library/`) — none
+      touched.
+    - Test code (`InSummaryTests/`) — none touched.
+    - PBX (`InSummary.xcodeproj/project.pbxproj`) — none touched.
+    - Fixture (`InSummary/Resources/Fixtures/`) — none touched.
+    - Models (`InSummary/Models/*`) — none touched.
+    - `proposal.md`, `design.md`, `tasks.md` (other rows),
+      `tasks-es.md` (other rows) — preserved byte-for-byte apart
+      from the row-level checkbox flips documented above.
+
+    **TDD framing for task 5.4**
+
+    Strict TDD is active. Task 5.4 is a **documentation unit**: it
+    introduces two Markdown files alongside an already-merged
+    Phase 2 codebase. There is no production code change and no
+    test change in this slice. The strict-TDD RED → GREEN →
+    TRIANGULATE → REFACTOR cycle therefore reduces to:
+
+    - **RED**: N/A — the artifact under test (the merged Phase 2
+      codebase) is already produced and pinned by slices 1–4. The
+      `verification.md` file under construction is the only thing
+      new, and there is no failing test against it because there is
+      no production code change to gate.
+    - **GREEN**: every acceptance criterion in `proposal.md` §
+      "Acceptance (mirrors `specification.md` §6 Phase 2)" is
+      asserted ✅ with cross-references to the focused test
+      methods; the captured log tail is the exact XCTest output;
+      the grep guard sweep is the exact `rg` command and result;
+      the airplane-mode acceptance is the import-graph audit.
+    - **TRIANGULATE**: each acceptance criterion has at least one
+      dedicated test method that pins it; the XCTest suite has 95
+      tests across 13 suites; the grep guard sweep has 17
+      blocklist patterns × 3 module directories = 51 grep queries
+      (all zero); the airplane-mode check has the import-graph
+      audit + the timing-independence audit. Three independent
+      gates converge on the same ✅ Pass verdict.
+    - **REFACTOR**: N/A — the verification report is a one-pass
+      Markdown document. No production surface is touched, so
+      there is no helper to collapse and no approval-net test to
+      keep green.
+
+    **Cross-references**
+
+    - `verification.md` § 2 references every focused test method
+      that pins an acceptance criterion.
+    - `verification.md` § 5 cross-references
+      `openspec/config.yaml` `guards.blocked_substrings_in_product_code`
+      as the source of truth for the blocklist.
+    - `verification.md` § 6.4 cross-references this
+      `apply-progress.md` close-out entry.
+    - `verification.md` § 8 explicitly states that task 5.5 is
+      deferred and that `verification.md` is the single source of
+      truth for Phase 2 verification evidence until the archive
+      step lands.
+    - `verification-es.md` mirrors every section, table, and
+      cross-reference in Spanish per AGENTS.md §1.1.
+
+    **Deviations / notes (task 5.4)**
+
+    1. **Documentation unit, not a production slice.** Task 5.4
+       introduces two Markdown files; there is no production code
+       or test change. The strict-TDD GREEN column records the
+       captured evidence (95/95 green, zero blocklist matches,
+       airplane-mode passed) instead of a transition from a
+       failing test to a passing one.
+    2. **Spanish mirror is faithful, not a rewrite.** The mirror
+       translates every sentence into neutral / professional
+       Spanish per AGENTS.md §1.1. No idiomatic restructuring, no
+       voseo, no slang, no CAPS for emphasis. The section structure
+       is byte-equal to the English version.
+    3. **No simulator run was performed in this slice.** The
+       captured XCTest log tail (§3) and the grep guard sweep
+       (§5) were already executed by the parent-held native SDD
+       attempt as part of the task 5.2 integration gates. This
+       slice records the artifact only.
+    4. **No product code touched.** `git diff` on the allowed edit
+       surfaces shows: (a) two new Markdown files
+       (`verification.md`, `verification-es.md`); (b) six
+       checkbox flips in `tasks.md` (rows 0.4, 0.5, 5.1, 5.2, 5.3,
+       5.4); (c) six mirrored checkbox flips in `tasks-es.md`; (d)
+       this `apply-progress.md` entry. No production source, no
+       test, no PBX entry, no fixture, no model, no resource was
+       touched.
+    5. **Parent-held native SDD attempt honored.** No acquire,
+       settle, reset, commit, push, or PR-open actions were taken.
+       The parent-held attempt retains its token
+       (`sha256:19650befd0b137bbbd11f1a6179c35465a030767b6162963e5494a3353305041`).
+       This slice returns the standard phase envelope with
+       `next_recommended: parent-lifecycle` for the parent's
+       settlement step.
+
+   ### Out of scope (still deferred, owned by parent lifecycle or the next slice)
+
+    - Task 5.5 (`<!-- sdd-owner: implementation -->`) — the archive
+      move. The persisted task artifact records task 5.5 as
+      `[ ]`. The archive step (move
+      `openspec/changes/pdf-reader-pencilkit-ink-recovery/` to
+      `openspec/archive/pdf-reader-pencilkit-ink-recovery/`,
+      append `openspec/archive/pdf-reader-pencilkit-ink-recovery/archive.md`
+      with the final SHA, the green-test log tail, and the
+      verification report pointer, and mirror the archive under
+      `documents-es/openspec/archive/pdf-reader-pencilkit-ink-recovery/`)
+      is deferred to the next slice per the parent prompt.
+
+   ### Phase 2 close-out summary (this slice)
+
+    - **Tracker PR #19**: `973415d` (merge commit on `main`).
+    - **Local tracker integration**: `e2f71fb`.
+    - **Tasks flipped `[ ]` → `[x]` in this slice**: 0.4, 0.5,
+      5.1, 5.2, 5.3, 5.4 (six rows in `tasks.md`; six mirrored
+      rows in `tasks-es.md`).
+    - **Task still `[ ]`**: 5.5 (archive, deferred).
+    - **Files added**: `verification.md`, `verification-es.md`.
+    - **Files modified**: `tasks.md`, `tasks-es.md`,
+      `apply-progress.md` (this entry).
+    - **Strict-TDD framing**: documentation unit; RED → GREEN →
+      TRIANGULATE → REFACTOR cycle reduced to GREEN / TRIANGULATE
+      (no production code, no test change).
+    - **Authority**: no acquire, settle, reset, commit, push, or
+      PR-open. Parent-held native SDD attempt honored.
+    - **Phase 2 verdict**: ✅ Pass. All seven acceptance criteria
+      satisfied. 95/95 XCTest green. Zero blocklist matches.
+      Airplane-mode passed by construction. Tracker merged to
+      `main`.
+
+    ---
+
+## Slice 5 close-out (recap)
+
+        With this slice, the persisted task artifact
+        (`openspec/changes/pdf-reader-pencilkit-ink-recovery/tasks.md`
+        and the Spanish mirror) records 41 closed implementation + parent
+        rows and 1 deferred archive row (5.5). The verification report
+        (`verification.md` + `verification-es.md`) is the single source
+        of truth for the Phase 2 verification evidence; the archive step
+        (task 5.5) is the only remaining implementation-owned action and
+        is owned by the next slice.
+
+    ---
+
+    ### Task 5.5 GREEN — archive move + `archive.md` / `archive-es.md`
+
+    **Status**: ✅ Green established. The Phase 2 change directory and
+    its Spanish mirror were moved from `openspec/changes/` (resp.
+    `documents-es/openspec/changes/`) into `openspec/archive/` (resp.
+    `documents-es/openspec/archive/`) under
+    `pdf-reader-pencilkit-ink-recovery/`. The implementation-owned row
+    `5.5` is flipped `[ ]` → `[x]` in both `tasks.md` and `tasks-es.md`
+    inside the archived tree. The `archive.md` record (final main merge
+    SHA, green-test log tail, verification report pointer) and its
+    faithful neutral-Spanish mirror `archive-es.md` are committed to
+    the archive root.
+
+    **Files added (after the move)**
+
+    - `openspec/archive/pdf-reader-pencilkit-ink-recovery/archive.md`
+      (NEW) — English archive record. Captures the final main merge SHA
+      `973415d508a4d22a788e0408558f7875313ad3c4`, the local tracker
+      integration `e2f71fb`, the captured 95/95 green XCTest log tail,
+      the per-suite breakdown, the grep-guard / diff-check /
+      airplane-mode evidence summary, the verification report pointer
+      (`./verification.md`), and the moved-tree structure.
+    - `documents-es/openspec/archive/pdf-reader-pencilkit-ink-recovery/archive-es.md`
+      (NEW) — faithful neutral-Spanish translation of `archive.md`,
+      section-by-section mirror (per AGENTS.md §1.1). The verification
+      report pointer is `./verification-es.md` (the in-archive Spanish
+      mirror next to `archive-es.md`).
+    - `openspec/archive/` (new directory tree, empty otherwise).
+    - `documents-es/openspec/archive/` (new directory tree, empty
+      otherwise).
+
+    **Files moved (from `changes/` → `archive/`)**
+
+    - `openspec/changes/pdf-reader-pencilkit-ink-recovery/` →
+      `openspec/archive/pdf-reader-pencilkit-ink-recovery/`
+      (`README.md`, `apply-progress.md`, `design.md`, `proposal.md`,
+      `specs/{pdf-engine,pdf-fixture,pdf-reader-wiring,pencilkit-ink-overlay}/spec.md`).
+      The pre-existing `verification.md` (untracked at the close of
+      task 5.4) and the modified `tasks.md` are also carried along by
+      the directory move.
+    - `documents-es/openspec/changes/pdf-reader-pencilkit-ink-recovery/`
+      → `documents-es/openspec/archive/pdf-reader-pencilkit-ink-recovery/`
+      (`README-es.md`, `design-es.md`, `proposal-es.md`, `specs/*/spec-es.md`).
+      The pre-existing `verification-es.md` and the modified
+      `tasks-es.md` are carried along by the directory move.
+
+    **Files modified (the only edit besides the move itself)**
+
+    - `openspec/archive/pdf-reader-pencilkit-ink-recovery/tasks.md`
+      — flipped row `5.5` from `[ ]` to `[x]` (single edit, no other
+      rows touched).
+    - `documents-es/openspec/archive/pdf-reader-pencilkit-ink-recovery/tasks-es.md`
+      — flipped row `5.5` from `[ ]` to `[x]` (single edit, mirror of
+      the English flip; no other rows touched).
+    - `openspec/archive/pdf-reader-pencilkit-ink-recovery/apply-progress.md`
+      — this entry appended (no edits to the prior 6 014-line body).
+
+    **Files NOT touched (deliberately deferred or out of scope)**
+
+    - `openspec/config.yaml` — unchanged. The `fixture.path`,
+      `guards.blocked_substrings_in_product_code`, `reviews.chained_prs`,
+      and Phase 1 invariants remain as written.
+    - `openspec/project-context.md` — unchanged.
+    - `documents-es/openspec/.gitkeep` — unchanged.
+    - No production source under `InSummary/` (no test, no PBX, no
+      fixture binary, no model, no resource touched).
+    - No `git commit`, no `git push`, no `git reset`, no PR open, no
+      branch switch, no `git mv` was issued. The work is on disk only,
+      awaiting the user's commit decision.
+    - No native SDD `acquire` / `settle` / `reset` was issued. The
+      parent-held attempt token (recorded in `verification.md` §6.4
+      and `verification-es.md` §6.4) is preserved unchanged.
+
+    **TDD Cycle framing (documentation unit)**
+
+    - **RED**: N/A — no production-code change. The slice has no
+      failing test to establish; the strict-TDD GREEN column records
+      the move + authorship of the archive record instead of a
+      failing→passing transition.
+    - **GREEN**: every acceptance criterion in `proposal.md` §
+      "Acceptance" remains satisfied per `verification.md` §2 (and its
+      Spanish mirror §2); the archive step was authorised by the
+      parent prompt as `size:exception` for a documentation archive;
+      the new `archive.md` and `archive-es.md` carry the final main
+      merge SHA, the green-test log tail, and the verification report
+      pointer.
+    - **TRIANGULATE**: three independent artefacts converge on the
+      same Phase-2 verdict — (1) `verification.md` §3 captured XCTest
+      log tail (95/95 green); (2) `verification.md` §5 grep-guard sweep
+      (zero blocklist matches); (3) `verification.md` §6.3 airplane-mode
+      acceptance (passed by construction). Each is recorded against
+      `973415d508a4d22a788e0408558f7875313ad3c4` (the final `main`
+      merge SHA on the archive record).
+    - **REFACTOR**: N/A — this is a move + a new documentation
+      artefact. No production surface is touched, so there is no
+      helper to collapse and no approval-net test to keep green.
+
+    **TDD Cycle Evidence (task 5.5)**
+
+    | Task | Surface | RED | GREEN | TRIANGULATE | REFACTOR |
+    | --- | --- | --- | --- | --- | --- |
+    | 5.5 | `openspec/archive/pdf-reader-pencilkit-ink-recovery/` + `documents-es/openspec/archive/pdf-reader-pencilkit-ink-recovery/` | N/A (no production change) | ✅ Move + `archive.md` + `archive-es.md` authored; tasks `5.5` flipped `[ ]` → `[x]` in both archived task files | ✅ Three artefacts converge: (1) verification report captured XCTest tail 95/95 green, (2) grep-guard sweep zero blocklist matches, (3) airplane-mode import-graph audit | N/A (documentation move only) |
+
+    **Cross-references**
+
+    - `archive.md` §2 records the final main merge SHA
+      `973415d508a4d22a788e0408558f7875313ad3c4` and the local tracker
+      integration `e2f71fb`.
+    - `archive.md` §3 records the captured XCTest log tail (95/95
+      green) and the per-suite / per-slice breakdown.
+    - `archive.md` §4 points to the in-archive verification report
+      (`./verification.md`) and to the Spanish mirror under
+      `documents-es/openspec/archive/pdf-reader-pencilkit-ink-recovery/verification-es.md`.
+    - `archive.md` §5 enumerates the moved English and Spanish trees.
+    - `archive-es.md` mirrors §1–§7 in faithful neutral-Spanish per
+      AGENTS.md §1.1.
+    - `tasks.md` (now archived) flips row `5.5` `[ ]` → `[x]`.
+    - `tasks-es.md` (now archived) flips row `5.5` `[ ]` → `[x]`.
+
+    **Deviations / notes (task 5.5)**
+
+    1. **Documentation unit, not a production slice.** Task 5.5
+       moves two directory trees and adds two Markdown archive records.
+       No production code, no test, no PBX, no fixture, no model, no
+       resource is touched. The strict-TDD GREEN column records the
+       captured evidence (the directory move + the authored
+       `archive.md` / `archive-es.md` carry the final main merge SHA,
+       the green-test log tail, and the verification report pointer)
+       instead of a transition from a failing test to a passing one.
+    2. **`size:exception` honoured.** The parent prompt authorises
+       `maintainer-authorized documentation archive` as the
+       `size:exception` mode for this work unit. There are no chained
+       PRs, no review-budget risk, and no scope ambiguity — this is a
+       bounded documentation move with a single artifact (`archive.md`
+       + its Spanish mirror) appended to the archive root.
+    3. **Path layout changes vs. the `verification.md` deferred-task
+       note.** `verification.md` §8 recorded task 5.5 as deferred and
+       pointed at the `openspec/changes/...` paths. Those paths are
+       now stale — the verification report itself was moved into
+       `openspec/archive/pdf-reader-pencilkit-ink-recovery/verification.md`
+       by the same directory move. The `archive.md` §4 pointer is the
+       authoritative replacement for the §8 deferred-task note
+       (relative to the archive root: `./verification.md`).
+    4. **`openspec/changes/` and `documents-es/openspec/changes/` are
+       now empty.** The parent repository only carries one active
+       change. After the move, the empty `changes/` directory was
+       removed (this is a single-change repo — leaving `changes/`
+       empty would have been a stale directory). Future changes will
+       live under `openspec/changes/<name>/` as before; the
+       `archive/` directory captures all completed changes.
+    5. **No commit, push, PR, or branch change.** Per the parent
+       prompt. `git status` shows the work as a mix of: (a) renames
+       (`changes/pdf-reader-pencilkit-ink-recovery/` →
+       `archive/pdf-reader-pencilkit-ink-recovery/`); (b) the
+       `archive.md` and `archive-es.md` additions; (c) the task 5.5
+       checkbox flips on the moved task files; (d) this
+       `apply-progress.md` close-out entry. The user's commit policy
+       is the final authority.
+    6. **Parent-held native SDD attempt honored.** The attempt token
+       is preserved untouched. No `acquire`, `settle`, `reset`, or
+       `rescope` was issued. The slice returns the standard phase
+       envelope with `next_recommended: parent-lifecycle` for the
+       parent's settlement step. The archive is on disk; the parent
+       orchestrator decides how (or whether) to commit, push, open a
+       PR, or update `openspec/` governance.
+
+    **Phase 2 archive complete (this slice)**
+
+    - **Final main merge SHA**:
+      `973415d508a4d22a788e0408558f7875313ad3c4`.
+    - **Local tracker integration**: `e2f71fb`.
+    - **Tasks flipped `[ ]` → `[x]` in this slice**:
+      row `5.5` in archived `tasks.md`; row `5.5` in archived
+      `tasks-es.md` (two rows total — both the
+      `<!-- sdd-owner: implementation -->` row).
+    - **Files added**: `archive.md`, `archive-es.md`.
+    - **Files moved**: 14 English files (6 root + 4 specs + the
+      `specs/` directory subtree containing 4 `spec.md`) and 14 Spanish
+      files (5 root + 4 specs + the `specs/` directory subtree
+      containing 4 `spec-es.md`); see `archive.md` §5 for the full tree.
+    - **Files modified**: archived `tasks.md`, archived
+      `tasks-es.md`, archived `apply-progress.md` (this entry).
+    - **Strict-TDD framing**: documentation unit; RED → GREEN →
+      TRIANGULATE → REFACTOR cycle reduced to GREEN / TRIANGULATE (no
+      production code, no test change).
+    - **Authority**: no acquire, settle, reset, commit, push, or
+      PR-open. Parent-held native SDD attempt honored.
+    - **Phase 2 verdict**: ✅ Pass. All seven acceptance criteria
+      satisfied. 95/95 XCTest green. Zero blocklist matches.
+      Airplane-mode passed by construction. Tracker merged to `main`
+      as `973415d508a4d22a788e0408558f7875313ad3c4`. Archive complete.

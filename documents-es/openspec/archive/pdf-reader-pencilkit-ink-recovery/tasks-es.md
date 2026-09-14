@@ -36,9 +36,9 @@ por `openspec/config.yaml` y por el preflight del orquestador.
       `openspec/changes/pdf-reader-pencilkit-ink-recovery/`.
 - [x] 0.3 Escribir los espejos en español bajo
       `documents-es/openspec/changes/pdf-reader-pencilkit-ink-recovery/`.
-- [ ] 0.4 Abrir el PR rastreador como **borrador / sin fusión** con
+- [x] 0.4 Abrir el PR rastreador como **borrador / sin fusión** con
       el diagrama de dependencia de la cadena.
-- [ ] 0.5 Mantener el rastreador en estado borrador hasta que todos
+- [x] 0.5 Mantener el rastreador en estado borrador hasta que todos
       los PR hijos (#1–#4) se hayan fusionado en verde.
       <!-- sdd-owner: parent -->
 
@@ -342,28 +342,28 @@ observador). Apunta al PR #3 porque la cadena debe permanecer lineal
 
 ## 5. Cierre del rastreador (tras fundirse los cuatro PR hijos en verde)
 
-- [ ] 5.1 Rebasar (o hacer fast-forward) `tracker/pdf-reader-pencilkit-ink-recovery`
+- [x] 5.1 Rebasar (o hacer fast-forward) `tracker/pdf-reader-pencilkit-ink-recovery`
       sobre la cabeza de la rama del PR #4 para que el rastreador
       cargue cada hijo fusionado.
       <!-- sdd-owner: parent -->
-- [ ] 5.2 Ejecutar los portones de integración sobre la rama del
+- [x] 5.2 Ejecutar los portones de integración sobre la rama del
       rastreador (suite completa de XCTest, guardas de grep sobre
       todo el árbol `InSummary/`, aceptación en modo avión) y
       confirmar verde antes de promover el PR rastreador fuera del
       estado borrador.
       <!-- sdd-owner: parent -->
-- [ ] 5.3 Promover el PR rastreador de **borrador** → **listo** y
+- [x] 5.3 Promover el PR rastreador de **borrador** → **listo** y
       fusionar `tracker/pdf-reader-pencilkit-ink-recovery` en `main`.
       **Solo el rastreador se fusiona en `main`; ningún PR hijo
       apunta a `main` directamente.**
       <!-- sdd-owner: parent -->
-- [ ] 5.4 Autorizar `openspec/changes/pdf-reader-pencilkit-ink-recovery/verification.md`
+- [x] 5.4 Autorizar `openspec/changes/pdf-reader-pencilkit-ink-recovery/verification.md`
       con casillas de aprobado/reprobado para cada criterio de
       aceptación de la Fase 2 del `proposal.md`, el fragmento del
       registro capturado, los resultados de grep y el resultado en
       modo avión.
       <!-- sdd-owner: implementation -->
-- [ ] 5.5 Archivar el cambio: mover
+- [x] 5.5 Archivar el cambio: mover
       `openspec/changes/pdf-reader-pencilkit-ink-recovery/` a
       `openspec/archive/pdf-reader-pencilkit-ink-recovery/` y anexar
       `openspec/archive/pdf-reader-pencilkit-ink-recovery/archive.md`

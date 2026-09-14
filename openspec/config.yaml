@@ -1,0 +1,222 @@
+# openspec/config.yaml — In-Summary SDD configuration
+#
+# Source of truth for SDD execution on this project. Every parent
+# orchestrator and every phase executor reads this file first. The keys
+# below are normative; an executor that ignores them has misread the
+# project.
+
+schema: openspec/v1
+project:
+  name: InSummary
+  display_name: In-Summary
+  description: >-
+    iPad-only, local-first reader and annotator for PDF, EPUB, and Markdown
+    documents. Phase 2 of v1 introduces the PDF engine and the PencilKit
+    ink overlay.
+  platform:
+    primary: iPadOS
+    minimum: 26.0
+    form_factors: [iPad]
+    apple_developer_program_required: false
+  stack:
+    language: Swift
+    minimum_language_version: "5.10"
+    toolchain: Xcode 26
+    frameworks: [SwiftUI, PDFKit, PencilKit, SwiftData, UIKit]
+  package_layout:
+    product_root: InSummary
+    test_root: InSummaryTests
+    doc_mirror_root: documents-es
+
+artifact_store:
+  backend: openspec
+  openspec_root: openspec
+  mirror_root: documents-es/openspec
+  mirror_language: es-neutral
+
+# ---------------------------------------------------------------------------
+# TDD discipline
+# ---------------------------------------------------------------------------
+sdd:
+  strict_tdd: true
+  red_first: true            # failing test authored before any product code
+  tests_with_code: true      # tests ship in the same PR as the code they cover
+  tests_with_docs: true      # documentation ships in the same PR as the change
+  refactor_after_green: true # green test is the signal to refactor
+  rules:
+    - proposal-required
+    - tasks-required
+    - specs-required
+    - design-required-when-multi-slice
+    - verification-report-required
+    - spanish-mirror-required
+  phase_artifacts:
+    init: [proposal, design, tasks, specs/*, project-context]
+    apply: [code, tests-with-code]
+    verify: [verification-report]
+    archive: [archive-report]
+
+# ---------------------------------------------------------------------------
+# Phase gating
+# ---------------------------------------------------------------------------
+phases:
+  in_scope:
+    - 2 # PDF engine + PencilKit ink (the current change)
+  out_of_scope:
+    - 3-markdown-engine # Phase 3
+    - 3-epub-engine # Phase 3
+    - 4-sticky-notes # Phase 4
+    - 4-semantic-highlights # Phase 4
+    - 5-import # Phase 5 — no PDF import in this change
+    - 5-library-folders # Phase 5
+    - 5-export # Phase 5
+    - 6-polish # Phase 6
+    - future-icloud-cloudkit # deferred sync phase
+  product_constraints:
+    - ipad-only
+    - local-only
+    - no-network
+    - no-icloud
+    - no-cloudkit
+    - no-apple-developer-program
+
+# ---------------------------------------------------------------------------
+# Phase 1 schema invariants (immutable in this change)
+# ---------------------------------------------------------------------------
+phase_1_invariants:
+  document_item:
+    pagination_mode_raw:
+      field: "paginationModeRaw"
+      type: "String"
+      canonical_values: ["horizontal", "vertical"]
+      default: "horizontal"
+      location: "InSummary/Models/DocumentItem.swift"
+      immutable_in_phase_2: true
+      do_not_add: true
+      do_not_alter: true
+  page_annotation:
+    drawing_data:
+      field: "drawingData"
+      type: "Data?"
+      attribute: "@Attribute(.externalStorage)"
+      location: "InSummary/Models/PageAnnotation.swift"
+      purpose: >-
+        PencilKit PKDrawing.dataRepresentation() payload, persisted
+        out-of-row. Phase 2 reads and writes this field directly; no
+        parallel ink store is introduced.
+      reusable_in_phase_2: true
+
+# ---------------------------------------------------------------------------
+# Fixture contract
+# ---------------------------------------------------------------------------
+fixture:
+  purpose: project-authored deterministic CC0 PDF used to exercise the reader
+  license: CC0-1.0-Universal
+  pages: 20
+  authorship: project-authored
+  path: InSummary/Resources/Fixtures/sample-bundle.pdf
+  path_is_canonical: true
+  wrong_paths_must_fail_review:
+    - InSummary/Resources/Fixture/sample.pdf
+    - InSummary/Resources/Fixtures/sample.pdf
+    - InSummary/Resources/Fixures/sample-bundle.pdf
+    - any path that is not exactly "InSummary/Resources/Fixtures/sample-bundle.pdf"
+
+# ---------------------------------------------------------------------------
+# Testing runner
+# ---------------------------------------------------------------------------
+testing:
+  runner: xcodebuild-test
+  test_targets:
+    - InSummaryTests
+  test_command: >-
+    xcodebuild test
+    -scheme InSummary
+    -destination 'platform=iOS Simulator,name=iPad Pro 13-inch (M4),OS=26.0'
+  unit_test_style: XCTest-table-driven
+  snapshot_testing: deferred-phase-6
+
+capabilities_tracked:
+  - pdf-fixture
+  - pdf-engine
+  - pencilkit-ink-overlay
+  - pdf-reader-wiring
+
+explicitly_out_of_scope_capabilities:
+  - import
+  - export
+  - library-shell
+  - markdown-engine
+  - epub-engine
+  - sticky-notes
+  - semantic-highlights
+  - sync
+  - cloudkit
+  - network
+  - icloud
+  - ckasset
+
+# ---------------------------------------------------------------------------
+# Delivery — feature-branch-chain (linear topology)
+# ---------------------------------------------------------------------------
+delivery:
+  strategy: feature-branch-chain
+  review_budget_lines: 400
+  chain:
+    strategy: feature-branch-chain
+    tracker_branch_pattern: tracker/<change-id>
+    child_branch_pattern: feat/<slice-id>
+    max_lines_per_child_pr: 400
+    max_review_minutes_per_child_pr: 60
+    tracker_pr_is_draft: true
+    # Linear topology — every child PR except #1 targets the branch of its
+    # immediate predecessor. No branching. No fan-out. No child PR targets
+    # the tracker branch except PR #1.
+    topology: linear
+    linear_rule: |
+      PR #N (N > 1) MUST target the branch produced by PR #(N-1).
+      The only child PR that targets the tracker branch is PR #1.
+      The only PR that ever merges into main is the tracker PR.
+  feature_branch_target: tracker/pdf-reader-pencilkit-ink-recovery
+
+# ---------------------------------------------------------------------------
+# Source-code guards (enforced at verify time)
+# ---------------------------------------------------------------------------
+guards:
+  blocked_substrings_in_product_code:
+    - CKContainer
+    - CKDatabase
+    - CKAsset
+    - NSPersistentCloudKitContainer
+    - cloudKitDatabase
+    - CloudSyncMonitor
+    - RemoteNotification
+    - aps-environment
+    - com.apple.developer.icloud
+    - com.apple.developer.icloud-container
+    - com.apple.developer.icloud-services
+    - .fileImporter
+    - UIDocumentPickerViewController
+    - PHPickerViewController
+    - URLSession.shared
+    - NWConnection
+    - NWPath
+  no_network_in_phase_2: true
+  no_import_in_phase_2: true
+  bundle_only_local_fixtures: true
+  fixture_path_guard:
+    pattern: 'InSummary/Resources/Fixtures/sample-bundle\.pdf'
+    forbid:
+      - 'InSummary/Resources/Fixture/sample\.pdf'
+      - 'InSummary/Resources/Fixtures/sample\.pdf'
+
+# ---------------------------------------------------------------------------
+# Skills contract
+# ---------------------------------------------------------------------------
+skills:
+  registry: .atl/skill-registry.md
+  parent_must_inject_paths: true
+  fallback_allowed: true
+  required_for_init:
+    - cognitive-doc-design
+    - chained-pr

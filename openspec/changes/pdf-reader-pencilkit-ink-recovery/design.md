@@ -92,9 +92,13 @@ future sync phase formalises annotation storage.
   on the outgoing `PageAnnotation`, loads the incoming
   `PageAnnotation` by `(document.id, pageIndex)`, lazy-upserts one if
   missing, and asks the overlay to `activate(pageIndex:)`.
-- Byte-identical round-trip is a hard requirement: the bytes persisted
-  by the overlay MUST be exactly the bytes that
-  `PKDrawing.dataRepresentation()` produces, byte-for-byte.
+- Byte equality is asserted at the persistence boundary: the bytes
+  persisted by the overlay MUST be exactly the bytes that
+  `PKDrawing.dataRepresentation()` produces at write time. Because
+  decoding then re-encoding a `PKDrawing` may canonicalize its
+  archive, the replay path preserves drawing semantics rather than
+  byte equality — `canvas.drawing.dataRepresentation()` after replay
+  MAY differ from the stored `drawingData`.
 
 **Why no separate file store**: the prior attempt invented a JSON file
 store under `Application Support/Ink/<documentID>.ink.json` to "avoid
@@ -195,9 +199,9 @@ land in the same PR as the code they cover.
 | `Tools/generate-sample-bundle-pdf.swift` (called from test support) | Determinism: hashing the generator output twice yields the same bytes; the canonical content hash matches the constant; the output is a 20-page `PDFDocument`; each page renders to a non-empty `UIImage`. |
 | `SampleBundleFixtureTests` (target: `InSummaryTests`) | The bundled fixture resolves from `Bundle.main`; the file is non-empty and ≤ 1 MB; the in-process generator output and the bundled bytes hash identically. |
 | `PDFReaderCoordinator` | Loads the bundled fixture; sets `displayMode` + `displayDirection` from `DocumentItem.paginationModeRaw`; updates the preference binding when the reader toggles mode; preserves the preference when the view is torn down and rebuilt; surfaces `PDFReaderError` for missing fixture, unreadable fixture, non-PDF document, and non-seed document. |
-| `PencilCanvasOverlay` | Ignores touch events that do not originate from `UITouch.Type.pencil`; persists a non-empty drawing on page leave; loads the same drawing byte-for-byte on page return; renders the default tool as `.highlighter`; lazy-upserts a `PageAnnotation` when none exists for the active page index. |
-| `PDFPageChangeObserver` | Round-trip preserves byte-identical `PKDrawing` payloads across pages 1 → 2 → 1; five navigation cycles are stable; the observer drops notifications whose `currentPageIndex` equals the last observed index; a save failure surfaces `AnnotationError.drawingPersistenceFailed(underlying:)` and does **not** mutate `lastObservedPageIndex`. |
-| `ReaderIntegrationTests` | End-to-end: open the bundled fixture, navigate across pages, draw on page 1 and page 2, return, assert strokes are byte-for-byte preserved; offline (airplane mode) acceptance check. |
+| `PencilCanvasOverlay` | Ignores touch events that do not originate from `UITouch.Type.pencil`; persists a non-empty drawing on page leave; on page return loads a drawing semantically equivalent to the persisted `drawingData` (byte equality is asserted at the persistence boundary before replay, not after replay); renders the default tool as a translucent yellow `.marker` (because `PKInkingTool.InkType.highlighter` is not exposed on iOS 26); lazy-upserts a `PageAnnotation` when none exists for the active page index. |
+| `PDFPageChangeObserver` | Round-trip preserves drawing semantics across pages 1 → 2 → 1 — the canvas after replay renders strokes semantically equivalent to those originally drawn, and `pageAnnotation.drawingData` rows remain equal to the bytes captured at the persistence boundary; five navigation cycles are stable; the observer drops notifications whose `currentPageIndex` equals the last observed index; a save failure surfaces `AnnotationError.drawingPersistenceFailed(underlying:)` and does **not** mutate `lastObservedPageIndex`. Byte equality is asserted only at the persistence boundary; the canvas's `drawing.dataRepresentation()` after replay MAY differ from the stored `drawingData`. |
+| `ReaderIntegrationTests` | End-to-end: open the bundled fixture, navigate across pages, draw on page 1 and page 2, return, assert strokes are semantically preserved on both pages (byte equality is asserted at the persistence boundary before each replay, not after replay); offline (airplane mode) acceptance check. |
 
 UI tests and snapshot tests are deferred to Phase 6. Phase 2 ships unit
 tests and the offline end-to-end XCTest described above.

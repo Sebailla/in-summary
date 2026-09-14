@@ -105,9 +105,14 @@ nueva.
   persiste en el `PageAnnotation` saliente, carga el `PageAnnotation`
   entrante por `(document.id, pageIndex)`, hace lazy-upsert si falta
   uno, y pide a la capa que ejecute `activate(pageIndex:)`.
-- El round-trip byte a byte es un requisito firme: los bytes
-  persistidos por la capa DEBEN ser exactamente los que produce
-  `PKDrawing.dataRepresentation()`, byte a byte.
+- La igualdad byte a byte se afirma en el límite de persistencia: los
+  bytes persistidos por la capa DEBEN ser exactamente los que produce
+  `PKDrawing.dataRepresentation()` en el momento de escritura. Como
+  decodificar y luego re-codificar un `PKDrawing` puede canonizar su
+  archivo, la ruta de reproducción preserva la semántica del dibujo y
+  no la igualdad byte a byte — el `drawing.dataRepresentation()` del
+  lienzo tras la reproducción PUEDE diferir del `drawingData`
+  almacenado.
 
 **Por qué no hay un almacén separado en archivos**: el intento previo
 inventó un almacén JSON bajo
@@ -218,9 +223,9 @@ pruebas llegan en el mismo PR que el código que cubren.
 | `Tools/generate-sample-bundle-pdf.swift` (llamado desde el soporte de pruebas) | Determinismo: hashear la salida del generador dos veces produce los mismos bytes; el hash de contenido canónico coincide con la constante; la salida es un `PDFDocument` de 20 páginas; cada página se renderiza a una `UIImage` no vacía. |
 | `SampleBundleFixtureTests` (objetivo: `InSummaryTests`) | El fixture empaquetado se resuelve desde `Bundle.main`; el archivo no está vacío y pesa ≤ 1 MB; la salida del generador en proceso y los bytes empaquetados hashean idénticamente. |
 | `PDFReaderCoordinator` | Carga el fixture empaquetado; fija `displayMode` + `displayDirection` a partir de `DocumentItem.paginationModeRaw`; actualiza el binding de preferencia cuando el lector alterna el modo; preserva la preferencia cuando la vista se desmonta y se reconstruye; expone `PDFReaderError` para fixture ausente, fixture ilegible, documento que no es PDF y documento que no es semilla. |
-| `PencilCanvasOverlay` | Ignora los eventos de toque que no se originan en `UITouch.Type.pencil`; persiste un dibujo no vacío al abandonar la página; carga el mismo dibujo byte a byte al volver a la página; renderiza la herramienta predeterminada como `.highlighter`; hace lazy-upsert de un `PageAnnotation` cuando no existe para el índice de página activo. |
-| `PDFPageChangeObserver` | El round-trip preserva payloads `PKDrawing` byte a byte entre páginas 1 → 2 → 1; cinco ciclos de navegación son estables; el observador descarta notificaciones cuyo `currentPageIndex` coincide con el último índice observado; un fallo de guardado expone `AnnotationError.drawingPersistenceFailed(underlying:)` y **no** muta `lastObservedPageIndex`. |
-| `ReaderIntegrationTests` | De extremo a extremo: abrir el fixture empaquetado, navegar entre páginas, dibujar en página 1 y página 2, volver y comprobar que los trazos se preservan byte a byte; comprobación de aceptación sin conexión (modo avión). |
+| `PencilCanvasOverlay` | Ignora los eventos de toque que no se originan en `UITouch.Type.pencil`; persiste un dibujo no vacío al abandonar la página; al volver a la página carga un dibujo semánticamente equivalente al `drawingData` persistido (la igualdad byte a byte se afirma en el límite de persistencia antes de la reproducción, no después); renderiza la herramienta predeterminada como un `.marker` amarillo translúcido (porque `PKInkingTool.InkType.highlighter` no está expuesto en iOS 26); hace lazy-upsert de un `PageAnnotation` cuando no existe para el índice de página activo. |
+| `PDFPageChangeObserver` | El round-trip preserva la semántica del dibujo entre páginas 1 → 2 → 1 — el lienzo tras la reproducción renderiza trazos semánticamente equivalentes a los dibujados originalmente, y las filas `pageAnnotation.drawingData` permanecen iguales a los bytes capturados en el límite de persistencia; cinco ciclos de navegación son estables; el observador descarta notificaciones cuyo `currentPageIndex` coincide con el último índice observado; un fallo de guardado expone `AnnotationError.drawingPersistenceFailed(underlying:)` y **no** muta `lastObservedPageIndex`. La igualdad byte a byte se afirma únicamente en el límite de persistencia; el `drawing.dataRepresentation()` del lienzo tras la reproducción PUEDE diferir del `drawingData` almacenado. |
+| `ReaderIntegrationTests` | De extremo a extremo: abrir el fixture empaquetado, navegar entre páginas, dibujar en página 1 y página 2, volver y comprobar que los trazos se preservan semánticamente en ambas páginas (la igualdad byte a byte se afirma en el límite de persistencia antes de cada reproducción, no después); comprobación de aceptación sin conexión (modo avión). |
 
 Las pruebas de UI y las pruebas de snapshot se difieren a la Fase 6.
 La Fase 2 entrega pruebas unitarias y la XCTest de extremo a extremo
@@ -236,7 +241,7 @@ sin conexión descrita arriba.
 | `pdf-reader-wiring` (PR #4) | Depende de los PR #1, #2 y #3. Cablea todo en la capa de librería existente y añade las pruebas de integración. | Rama del PR #3 (`feat/pencilkit-ink-overlay`) |
 
 **Regla de topología lineal (estricta):** cada PR hijo posterior al
-#1 apunta a la rama de su predecesor inmediato. La cadena es una
+# 1 apunta a la rama de su predecesor inmediato. La cadena es una
 sola línea, no un árbol:
 
 ```

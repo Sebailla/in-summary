@@ -10,6 +10,14 @@ page changes, app restarts, and `PDFReaderCoordinator` re-inits — all
 without introducing sticky notes, semantic highlights, the eraser tool
 mode, a parallel file store on disk, or any remote capability.
 
+Byte equality between the stored `drawingData` and the canvas's
+`drawing.dataRepresentation()` is asserted only at the persistence
+boundary (write side). Because decoding then re-encoding a `PKDrawing`
+may canonicalize its archive, the UI replay contract preserves drawing
+semantics rather than byte equality: a canvas rebuilt from
+`PKDrawing(data: drawingData)` renders the strokes the reader drew, but
+its `drawing.dataRepresentation()` MAY differ from the stored bytes.
+
 The overlay is a `UIViewRepresentable` around `PKCanvasView`. The
 `PDFPageChangeObserver` is its companion that drives the save/load
 cycle. Both live under `InSummary/Services/AnnotationEngine/` and do
@@ -37,27 +45,30 @@ swipes, and finger drags SHALL NOT add strokes to the canvas.
   drag gesture
 - **AND** `canvasViewDrawingDidChange` SHALL fire.
 
-### Requirement: Highlighter as default tool
+### Requirement: Default tool is a translucent yellow marker
 
-The overlay SHALL default to `PKInkingTool(.highlighter, ...)` so the
-first thing the reader sees when they pick up the Pencil is a
-highlighter, not a pen. The default tool SHALL be applied at
-`makeUIView` time and SHALL persist across replays from a stored
-drawing.
+The overlay SHALL default to `PKInkingTool(.marker, color: <translucent
+yellow PKInkingColor with alpha ≤ 0.5>, width: <marker width>)`. This is
+the canonical highlighter analog on iOS 26 because
+`PKInkingTool.InkType.highlighter` is not exposed on iOS 26. The
+default tool SHALL be applied at `makeUIView` time and SHALL persist
+across replays from a stored drawing.
 
-#### Scenario: Default tool is the highlighter on a blank canvas
+#### Scenario: Default tool is a translucent yellow marker on a blank canvas
 
 - **WHEN** the overlay mounts against a `PageAnnotation` whose
   `drawingData == nil` or an empty `PKDrawing`
 - **THEN** the underlying `PKCanvasView`'s inking tool SHALL be a
-  `PKInkingTool` with `InkType.highlighter`.
+  `PKInkingTool` with `InkType.marker` whose `PKInkingColor` is a
+  translucent yellow with alpha ≤ 0.5.
 
 #### Scenario: Tool persists across replays
 
 - **WHEN** the overlay has replayed a non-empty `PKDrawing` from
   `PageAnnotation.drawingData`
 - **THEN** the underlying `PKCanvasView`'s inking tool SHALL still be
-  a `PKInkingTool` with `InkType.highlighter`.
+  a `PKInkingTool` with `InkType.marker` whose `PKInkingColor` is a
+  translucent yellow with alpha ≤ 0.5.
 
 ### Requirement: Replay stored drawing on page load
 
@@ -67,14 +78,18 @@ in the reader. If no `PageAnnotation` row exists for that page index,
 the overlay SHALL lazy-upsert one against the bound `DocumentItem` and
 treat the page as blank.
 
-#### Scenario: Non-empty drawing replays byte-for-byte
+#### Scenario: Non-empty drawing replays with semantics preserved
 
 - **WHEN** a `PageAnnotation` exists for the current page with a
   non-empty `drawingData`
 - **THEN** the overlay SHALL replace the underlying `PKCanvasView`'s
   drawing with `PKDrawing(data: drawingData!)`
-- **AND** the canvas's `drawing.dataRepresentation()` SHALL equal the
-  stored `drawingData` byte-for-byte.
+- **AND** the canvas's `PKDrawing.strokes` SHALL render the strokes
+  encoded by the stored `drawingData`
+- **AND** the canvas's `drawing.dataRepresentation()` MAY differ from
+  the stored `drawingData` because decoding then re-encoding a
+  `PKDrawing` may canonicalize its archive; byte equality is asserted
+  only at the persistence boundary before replay, not after replay.
 
 #### Scenario: Missing annotation is a blank canvas
 
@@ -114,27 +129,43 @@ parallel file store on disk.
 - **AND** the previously persisted bytes SHALL remain untouched on
   disk.
 
-### Requirement: Byte-identical page round-trip
+### Requirement: Page round-trip preserves drawing semantics
 
 The overlay's companion `PDFPageChangeObserver` SHALL capture the
-outgoing page's bytes from the canvas via an injected closure, persist
-them on the outgoing `PageAnnotation`, load the incoming
-`PageAnnotation` for `(documentID, pageIndex)`, and ask the overlay to
-`activate(pageIndex:)`.
+outgoing page's bytes from the canvas via an injected closure at the
+persistence boundary, persist them on the outgoing `PageAnnotation`,
+load the incoming `PageAnnotation` for `(documentID, pageIndex)`, and
+ask the overlay to `activate(pageIndex:)`. Byte equality is asserted
+only at the persistence boundary; because decoding then re-encoding a
+`PKDrawing` may canonicalize its archive, the replay path preserves
+drawing semantics rather than byte equality between the canvas's
+post-replay `drawing.dataRepresentation()` and the stored `drawingData`.
 
 #### Scenario: Drawing survives a page round-trip
 
 - **WHEN** the reader draws on page 1, navigates to page 2, draws on
   page 2, then returns to page 1
-- **THEN** page 1's `PKDrawing.dataRepresentation()` SHALL be
-  byte-for-byte identical to the drawing the reader originally made
-- **AND** page 2's drawing SHALL also be preserved.
+- **THEN** page 1's `PKCanvasView` SHALL render strokes semantically
+  equivalent to those the reader originally drew on page 1
+- **AND** page 2's `PKCanvasView` SHALL likewise render strokes
+  semantically equivalent to those drawn on page 2
+- **AND** the canvas's `drawing.dataRepresentation()` after replay MAY
+  differ from the stored `drawingData` because decoding then
+  re-encoding a `PKDrawing` may canonicalize its archive; byte
+  equality is asserted only at the persistence boundary before each
+  replay.
 
 #### Scenario: Five navigation cycles are stable
 
 - **WHEN** the reader cycles between pages 1 and 2 five times
-- **THEN** both pages' `PKDrawing.dataRepresentation()` payloads SHALL
-  remain byte-for-byte equal to the values last persisted.
+- **THEN** both pages' `pageAnnotation.drawingData` rows SHALL remain
+  equal to the bytes last persisted at write time
+- **AND** both pages' canvases SHALL render strokes semantically
+  equivalent to the stored drawings
+- **AND** the canvas's `drawing.dataRepresentation()` after replay MAY
+  differ from the stored `drawingData` because decoding then
+  re-encoding a `PKDrawing` may canonicalize its archive; byte
+  equality is asserted only at the persistence boundary before replay.
 
 ### Requirement: Value-coalescing on page-change notifications
 

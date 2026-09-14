@@ -33,8 +33,13 @@
 A100000000000000000000TC /* sample-bundle.pdf in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000210 /* sample-bundle.pdf */; };
 A100000000000000000000TD /* Fixtures/SampleBundleFixtureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000211 /* Fixtures/SampleBundleFixtureTests.swift */; };
 		A100000000000000000000TE /* PDFReaderCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000212 /* PDFReaderCoordinatorTests.swift */; };
+		A100000000000000000000TH /* PencilCanvasOverlayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000215 /* PencilCanvasOverlayTests.swift */; };
+		A100000000000000000000TK /* PDFPageChangeObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000218 /* PDFPageChangeObserverTests.swift */; };
 		A100000000000000000000TF /* PDFReaderError.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000213 /* PDFReaderError.swift */; };
 		A100000000000000000000TG /* PDFReaderCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000214 /* PDFReaderCoordinator.swift */; };
+		A100000000000000000000TI /* AnnotationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000216 /* AnnotationError.swift */; };
+		A100000000000000000000TJ /* PencilCanvasOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000217 /* PencilCanvasOverlay.swift */; };
+		A100000000000000000000TL /* PDFPageChangeObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000219 /* PDFPageChangeObserver.swift */; };
             /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -76,6 +81,11 @@ A10000000000000000000210 /* sample-bundle.pdf */ = {isa = PBXFileReference; last
 		A10000000000000000000212 /* PDFReaderCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFReaderCoordinatorTests.swift; sourceTree = "<group>"; };
 		A10000000000000000000213 /* PDFReaderError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFReaderError.swift; sourceTree = "<group>"; };
 		A10000000000000000000214 /* PDFReaderCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFReaderCoordinator.swift; sourceTree = "<group>"; };
+		A10000000000000000000216 /* AnnotationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationError.swift; sourceTree = "<group>"; };
+		A10000000000000000000217 /* PencilCanvasOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PencilCanvasOverlay.swift; sourceTree = "<group>"; };
+		A10000000000000000000219 /* PDFPageChangeObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFPageChangeObserver.swift; sourceTree = "<group>"; };
+		A10000000000000000000215 /* PencilCanvasOverlayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PencilCanvasOverlayTests.swift; sourceTree = "<group>"; };
+		A10000000000000000000218 /* PDFPageChangeObserverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFPageChangeObserverTests.swift; sourceTree = "<group>"; };
 		A10000000000000000000300 /* InSummary.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InSummary.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000000000000000000301 /* InSummaryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = InSummaryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -136,6 +146,8 @@ A10000000000000000000210 /* sample-bundle.pdf */ = {isa = PBXFileReference; last
 				A10000000000000000000209 /* Support/PDFFixtureGenerator.swift */,
 				A10000000000000000000211 /* Fixtures/SampleBundleFixtureTests.swift */,
 				A10000000000000000000212 /* PDFReaderCoordinatorTests.swift */,
+				A10000000000000000000215 /* PencilCanvasOverlayTests.swift */,
+				A10000000000000000000218 /* PDFPageChangeObserverTests.swift */,
 			);
 			path = InSummaryTests;
 			sourceTree = "<group>";
@@ -174,6 +186,7 @@ A10000000000000000000210 /* sample-bundle.pdf */ = {isa = PBXFileReference; last
 			children = (
 				A100000000000000000000GB /* Persistence */,
 				A100000000000000000000GE /* PDFEngine */,
+				A100000000000000000000GF /* AnnotationEngine */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -219,6 +232,16 @@ A10000000000000000000210 /* sample-bundle.pdf */ = {isa = PBXFileReference; last
 				A10000000000000000000214 /* PDFReaderCoordinator.swift */,
 			);
 			path = PDFEngine;
+			sourceTree = "<group>";
+		};
+		A100000000000000000000GF /* AnnotationEngine */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000216 /* AnnotationError.swift */,
+				A10000000000000000000217 /* PencilCanvasOverlay.swift */,
+				A10000000000000000000219 /* PDFPageChangeObserver.swift */,
+			);
+			path = AnnotationEngine;
 			sourceTree = "<group>";
 		};
 		A100000000000000000000GC /* Library */ = {
@@ -353,6 +376,9 @@ A10000000000000000000210 /* sample-bundle.pdf */ = {isa = PBXFileReference; last
 				A100000000000000000000FA /* PreviewContainer.swift in Sources */,
 				A100000000000000000000TF /* PDFReaderError.swift in Sources */,
 				A100000000000000000000TG /* PDFReaderCoordinator.swift in Sources */,
+				A100000000000000000000TI /* AnnotationError.swift in Sources */,
+				A100000000000000000000TJ /* PencilCanvasOverlay.swift in Sources */,
+				A100000000000000000000TL /* PDFPageChangeObserver.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -372,10 +398,12 @@ A100000000000000000000T9 /* Support/PDFFixtureGeneratorTests.swift in Sources */
 				A100000000000000000000TA /* Support/PDFFixtureGenerator.swift in Sources */,
 				A100000000000000000000TD /* Fixtures/SampleBundleFixtureTests.swift in Sources */,
 				A100000000000000000000TE /* PDFReaderCoordinatorTests.swift in Sources */,
+				A100000000000000000000TH /* PencilCanvasOverlayTests.swift in Sources */,
+				A100000000000000000000TK /* PDFPageChangeObserverTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-    /* End PBXSourcesBuildPhase section */
+        /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
 		A100000000000000000000D1 /* PBXTargetDependency */ = {
